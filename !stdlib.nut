@@ -8,6 +8,7 @@ local Str = std.Str <- {},
       Util = std.Util <- {},
       Table = std.Table <- {},
       Array = std.Array <- {},
+      Iter = std.Iter <- {},
       Rand = std.Rand <- {},
       Debug = std.Debug <- {},
       Hook = std.Hook <- {};
@@ -152,6 +153,22 @@ extend(Array, {
     }
 })
 
+extend(Iter, {
+    function chain(...) {
+        foreach (it in vargv)
+            foreach (item in it) yield it;
+    }
+    function take(num, it) {
+        local result = [];
+        for (local done = 0; done < num; done++) {
+            local item = resume it;
+            if (item == null && it.getstatus() == "dead") break;
+            result.push(item);
+        }
+        return result;
+    }
+})
+
 extend(Util, {
     // These are moved to appropriate namespaces, here for backwards compatibility
     concat = Array.concat
@@ -162,6 +179,8 @@ extend(Util, {
     any = Array.any
 
     function sum(arr) {
+        // TODO: decide whether we should return 0, support non-numbers
+        //       there is Str.join() for strings already anyway
         return arr.reduce(@(a, b) a + b);
     }
 })
@@ -184,46 +203,55 @@ extend(Rand, {
         return this.float() < prob;
     }
 
-    function choice(options, weights = null, _total = null) {
-        if (_weights == null) return options[this.Math.rand(0, options.len() - 1)];
+    function index(n, weights = null, _total = null) {
+        if (weights == null) return this.int(0, n - 1);
+        if (n > weights.len()) throw "Not enough weights passed";
 
         local total = _total != null ? _total : Util.sum(weights);
         local roll = this.float() * total;
-        for (local i = 0; i < weights.len(); i++) {
+        for (local i = 0; i < n; i++) {
             roll -= weights[i];
-            if (roll <= 0) return options[i];
+            if (roll <= 0) return i;
         }
-        return options.top(); // To be safe
+        return n - 1; // To be safe
+    }
+
+    function choice(options, weights = null, _total = null) {
+        return options[this.index(options.len(), weights, _total)];
     }
     function choices(num, options, weights = null) {
         local res = [];
-        if (weights == null) {
-            for (local i = 0; i < num; i++) res.push(this.choice(options));
-        } else {
-            local total = Util.sum(weights);
-            for (local i = 0; i < num; i++) res.push(this.choice(options, weights, total));
-        }
+        local total = weights != null ? Util.sum(weights) : null;
+        for (local i = 0; i < num; i++) res.push(this.choice(options, weights, total));
         return res;
     }
-    function weighted(weights, options) { // Deprecated
-        return this.choice(options, weights);
+    function take(num, options, weights = null) {
+        return Iter.take(num, this.itake(options, weights));
     }
-    function take(num, options, _weights = null) {
-        local N = options.len()
-        local weights = _weights == null ? array(N, 1) : clone _weights;
-        local total = Util.sum(weights);
-
-        local indices = array(N);
-        for (local i = 0; i < N; i++) indices[i] = i;
-
-        local result = [];
-        for (local done = 0; done < num; done++) {
-            local i = this.choice(indices, weights, total);
-            result.push(options[i]);
-            total -= weights[i];
-            weights[i] = 0;
+    function itake(_options, _weights = null) { // generator
+        local options = _options, weights = _weights;
+        local total = weights ? Util.sum(_weights) : null;
+        local n = options.len();
+        while (n > 0) {
+            local i = weights ? this.index(n, weights, total) : this.int(0, n - 1);
+            yield options[i];
+            // The element i should be excluded from available choices, so we move the last element
+            // in its place and decrement the artificial end of both arrays.
+            n--;
+            if (options == _options) { // Only do clone if we need a second item
+                options = clone _options;
+                if (weights) weights = clone _weights;
+            }
+            options[i] = options[n];
+            if (weights) {
+                total -= weights[i];
+                weights[i] = weights[n];
+            }
         }
-        return result;
+    }
+
+    function weighted(weights, options) { // Deprecated, note the reverse param order
+        return this.choice(options, weights);
     }
 
     function insert(arr, item, num = 1) {
@@ -290,7 +318,6 @@ extend(Debug, {
 
         if (typeof data == "instance") {
             try {
-
                 data = data.getdelegate();
             } catch (exception) {
                 // do nothing
