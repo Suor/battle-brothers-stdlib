@@ -125,6 +125,10 @@ extend(Table, {
         if (t2 == null) return t1;
         return extend(clone t1, t2);
     }
+    // TODO:
+    // deepExtend
+    // deepMerge
+    // deepFill (like deepExtend but only updates no new keys)
 
     function keys(data) {
         local res = [];
