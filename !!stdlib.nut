@@ -65,12 +65,17 @@ extend(Str, {
 })
 
 extend(Re, {
-    function find(re, str) {
+    function find(str, re) {
         if (typeof re == "string") re = regexp(re);
         return Re._captureToValue(str, re.capture(str));
     }
 
-    function all(re, str) {
+    function test(str, re) {
+        if (typeof re == "string") re = regexp(re);
+        return re.capture(str) != null;
+    }
+
+    function all(str, re) {
         if (typeof re == "string") re = regexp(re);
 
         local res = [], pos = 0;
@@ -83,7 +88,7 @@ extend(Re, {
         return res;
     }
 
-    function replace(re, repl, str) {
+    function replace(str, re, repl) {
         local count = 2147483647; // Maybe expose it in future
         if (typeof re == "string") re = regexp(re);
 
@@ -93,12 +98,10 @@ extend(Re, {
             if (c == null) break;
             n++;
 
-            local replString = repl
+            local replString = repl;
             if (typeof repl == "function") {
                 local v = Re._captureToValue(str, c);
-                if (typeof v != "string")
-                    throw "Re.replace() with multible () and a callback not supported yet";
-                replString = repl(v);
+                replString = typeof v == "array" ? repl.acall([null].extend(v)) : repl(v);
             }
             res += str.slice(pos, c[0].begin) + replString;
             pos = c[0].end;
@@ -158,6 +161,11 @@ extend(Array, {
         }
         return false;
     }
+    function sum(arr) {
+        local total = 0;
+        foreach (x in arr) total += x;
+        return total;
+    }
 })
 
 extend(Iter, {
@@ -184,6 +192,7 @@ extend(Util, {
     extend = extend
     all = Array.all
     any = Array.any
+    sum = Array.sum
 
     function deepEq(a, b) {
         if (a == b) return true;
@@ -203,12 +212,6 @@ extend(Util, {
             return true
         }
         throw "Don't know how to compare " + typeof a;
-    }
-
-    function sum(arr) {
-        // TODO: decide whether we should return 0, support non-numbers
-        //       there is Str.join() for strings already anyway
-        return arr.reduce(@(a, b) a + b);
     }
 })
 

@@ -1,5 +1,5 @@
-dofile("!stdlib.nut");
-local Str = ::std.Str, Re = ::std.Re, Debug = ::std.Debug, Util = ::std.Util;
+dofile("!!stdlib.nut");
+local Str = ::std.Str, Re = ::std.Re, Debug = ::std.Debug, Util = ::std.Util, Array = ::std.Array;
 
 
 function assertEq(a, b) {
@@ -60,26 +60,28 @@ assert(Str.replace("hi, there. Hi, hi, bye", "hi", "hello", 1) == "hello, there.
 assert(Str.replace("ababa", "aba", "_") == "_ba")
 
 // Re
-// TODO: string first or pattern first???
-assert(Re.find(" ([IVXLC]+)$", "Ivan IV") == "IV")
-assert(Re.find(" [IVXLC]+$", "Ivan IV") == " IV")
-assert(Re.find(" ([IVXLC]+)$", "Ivan IV Formidable") == null)
-assert(Str.join("_", Re.find("^(\\w+) ([IVXLC]+)$", "Ivan IV")) == "Ivan_IV")
+assert(Re.find("Ivan IV", " ([IVXLC]+)$") == "IV")
+assert(Re.find("Ivan IV", " [IVXLC]+$") == " IV")
+assert(Re.find("Ivan IV Formidable", " ([IVXLC]+)$") == null)
+assert(Re.test("Ivan IV Formidable", " ([IVXLC]+)$") == false)
+assert(Str.join("_", Re.find("Ivan IV", "^(\\w+) ([IVXLC]+)$")) == "Ivan_IV")
 
 local versionRe = regexp("^(\\d+)(?:\\.(\\d+))?$")
-assertEq(Re.find(versionRe, "2.15"), ["2", "15"])
-assertEq(Re.find(versionRe, "2"), ["2", null])
+assertEq(Re.find("2.15", versionRe), ["2", "15"])
+assertEq(Re.find("2", versionRe), ["2", null])
 
-assertEq(Re.all("\\w+", "hi, there"), ["hi", "there"])
-assertEq(Re.all("(\\w+) = (\\d+)", "a = 12, xyz = 7"), [["a", "12"], ["xyz", "7"]])
-assertEq(Re.all("a\\d", "a1a2a"), ["a1", "a2"])
+assertEq(Re.all("hi, there", "\\w+"), ["hi", "there"])
+assertEq(Re.all("a = 12, xyz = 7", "(\\w+) = (\\d+)"), [["a", "12"], ["xyz", "7"]])
+assertEq(Re.all("a1a2a", "a\\d"), ["a1", "a2"])
 
-assertEq(Re.replace("a\\d+", "x_", "a1a23a"), "x_x_a")
-assertEq(Re.replace("_(\\d+)", (@(m) "." + (m.tointeger() + 1)), "_1_17_"), ".2.18_")
-// Not supported yet, TODO: decide on the API
-// assertEq(Re.replace("(\\w)(\\d+)", (@(m) m[0].toupper() + (m[1].tointeger() + 1)), "a1_b45"), "A2_B46")
-// assertEq(Re.replace("(\\w)(\\d+)", (@(c, d) c.toupper() + (d.tointeger() + 1)), "a1_b45"), "A2_B46")
+assertEq(Re.replace("a1a23a", "a\\d+", "x_"), "x_x_a")
+assertEq(Re.replace("_1_17_", "_(\\d+)", (@(m) "." + (m.tointeger() + 1))), ".2.18_")
+assertEq(Re.replace("a1_b45", "(\\w)(\\d+)", (@(c, d) c.toupper() + (d.tointeger() + 1))), "A2_B46")
 
+// Array
+assertEq(Array.sum([]), 0);
+assertEq(Array.sum([1 2 3]), 6);
+assert(Array.sum([1.1 2.2 3.3]) - 6.6 < 0.01);
 
 // Rand
 local Rand = std.Rand.using(::rng_new(1));  // set generator with a fixed seed
