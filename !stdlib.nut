@@ -1,3 +1,6 @@
+// DO NOT MODIFY THIS FILE
+// TO USE PUT IT INTO scripts/ AND RENAME TO !!stdlib_yourmod.nut
+
 // Alias things to make it easier for us inside. These are still global and accessible from outside
 // Ensure only the latest version goes as ::std
 local version = 1.3;
