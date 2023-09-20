@@ -43,9 +43,13 @@ local short = Str.cutprefix(name, "Ancient ");
 if (Str.startswith("background.legends_", this.getID())) ...
 Str.join("_", split(id, "."))
 
+// Regexes
+local romanNumber = Re.find(this.getName(), " ([IVXLC]+)$");
+local versionNums = Re.all("1.4.25", "\d+"); // ["1", "4", "25"]
+
 // Patch tooltip text, add 5 to chance to hit
 local tooltip = getTooltip();
-tooltip[i].text = Re.replace(text, "(\d+)(% chance to hit)", @(x, end) (x + 5) + end);
+tooltip[i].text = Re.replace(text, "(\d+)(% chance to hit)", @(x, end) (x.tointeger() + 5) + end);
 ```
 
 For a full list of things see below \[TO BE DONE\]. 
