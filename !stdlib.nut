@@ -182,6 +182,26 @@ extend(Util, {
     all = Array.all
     any = Array.any
 
+    function deepEq(a, b) {
+        if (a == b) return true;
+        if (typeof a != typeof b) return false;
+
+        if (typeof a == "string" || typeof a == "integer" || typeof a == "float") {
+            return a == b;
+        } else if (typeof a == "array") {
+            if (a.len() != b.len()) return false;
+            foreach (i, x in a)
+                if (!Util.deepEq(x, b[i])) return false;
+            return true
+        } else if (typeof a == "table") {
+            if (a.len() != b.len()) return false;
+            foreach (k, v in a)
+                if (!(k in b) || !Util.deepEq(v, b[k])) return false;
+            return true
+        }
+        throw "Don't know how to compare " + typeof a;
+    }
+
     function sum(arr) {
         // TODO: decide whether we should return 0, support non-numbers
         //       there is Str.join() for strings already anyway

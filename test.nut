@@ -1,23 +1,9 @@
 dofile("!stdlib.nut");
-local Str = std.Str, Re = std.Re, Debug = std.Debug;
+local Str = ::std.Str, Re = ::std.Re, Debug = ::std.Debug, Util = ::std.Util;
 
-function deepEq(a, b) {
-    if (a == b) return true;
-    if (typeof a != typeof b) return false;
 
-    if (typeof a == "string" || typeof a == "integer" || typeof a == "float") {
-        return a == b;
-    } else if (typeof a == "array") {
-        if (a.len() != b.len()) return false;
-        foreach (i, x in a)
-            if (!deepEq(x, b[i])) return false;
-        return true
-    }
-    throw "Don't know how to compare " + typeof a;
-}
 function assertEq(a, b) {
-    if (deepEq(a, b)) return;
-
+    if (Util.deepEq(a, b)) return;
     throw "assertEq failed:\na = " + Debug.pp(a) + "b = " + Debug.pp(b);
 }
 
@@ -107,4 +93,4 @@ assertEq(Rand.take(3, ["a" "b" "c" "d" "e"]), ["c" "a" "e"]);
 assertEq(Rand.take(3, ["a" "b" "c" "d" "e"], [1 2 3 0 0]), ["a" "c" "b"]);
 
 // Done
-print("Tests passed\n")
+print("Tests OK\n")
