@@ -3,7 +3,7 @@
 
 // Alias things to make it easier for us inside. These are still global and accessible from outside
 // Ensure only the latest version goes as ::std
-local version = 1.3;
+local version = 1.31;
 if ("std" in getroottable() && ::std.version >= version) return;
 local std = ::std <- {version = version};
 local Str = std.Str <- {},
@@ -59,6 +59,16 @@ extend(Str, {
         }
         return s;
     }
+
+    function capitalize(str) {
+        if (str == "") return str;
+        return str.slice(0, 1).toupper() + str.slice(1);
+    }
+    // Q: should we only capitalize after space, ",." whatever?
+    // function title(str) {
+    //     return Re.replace(str, "[a-zA-Z]+", @(w) Str.capitalize(w));
+    // }
+
     function indent(level, s) {
         return format("%"+ (level * 4) + "s", "") + s;
     }
