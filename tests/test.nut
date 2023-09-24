@@ -1,52 +1,9 @@
 dofile("!!stdlib.nut");
-local Str = ::std.Str, Re = ::std.Re, Debug = ::std.Debug, Util = ::std.Util, Array = ::std.Array;
+local Str = ::std.Str, Re = ::std.Re, Text = ::std.Text,
+    Debug = ::std.Debug, Util = ::std.Util, Array = ::std.Array;
 
-
-function assertEq(a, b) {
-    if (Util.deepEq(a, b)) return;
-    throw "assertEq failed:\na = " + Debug.pp(a) + "b = " + Debug.pp(b);
-}
-
-// Taken from modding hooks
-::rng_new <- function(seed = 0)
-{
-  if(seed == 0) seed = (Time.getRealTimeF() * 1000000000).tointeger();
-  return {
-    x = seed, y = 234567891, z = 345678912, w = 456789123, c = 0,
-    nextInt = function()
-    {
-      x += 1411392427;
-
-      y = y ^ (y<<5);
-      y = y ^ (y>>>7);
-      y = y ^ (y<<22);
-
-      local t = z + w + c;
-      z  = w;
-      c  = t >>> 31; // c = (signed)t < 0 ? 1 : 0
-      w  = t & 0x7FFFFFFF;
-
-      return (x + y + w) & 0x7FFFFFFF;
-    },
-    nextFloat = function()
-    {
-      return nextInt() / 2147483648.0;
-    },
-    next = function(a, b = null)
-    {
-      if(b == null)
-      {
-        if(a <= 0) throw "a must be > 0";
-        return nextInt() % a + 1;
-      }
-      else
-      {
-        if(a > b) throw "a must be <= than b";
-        return nextInt() % (b-a+1) + a;
-      }
-    }
-  }
-}
+dofile("tests/helpers.nut");
+dofile("tests/mocks.nut");
 
 
 // Str
@@ -77,6 +34,23 @@ assertEq(Re.all("a1a2a", "a\\d"), ["a1", "a2"])
 assertEq(Re.replace("a1a23a", "a\\d+", "x_"), "x_x_a")
 assertEq(Re.replace("_1_17_", "_(\\d+)", (@(m) "." + (m.tointeger() + 1))), ".2.18_")
 assertEq(Re.replace("a1_b45", "(\\w)(\\d+)", (@(c, d) c.toupper() + (d.tointeger() + 1))), "A2_B46")
+
+// Text
+assertEq(Text.positive("good"), "[color=green]good[/color]")
+assertEq(Text.negative("bad"), "[color=red]bad[/color]")
+assertEq(Text.plural(1), "")
+assertEq(Text.plural(2), "s")
+assertEq(Text.plural(11), "s")
+assertEq(Text.plural(21), "")
+
+// Still experimental
+assertEq(Text._render("... {0|sign|percent|color} hc", 12), "... [color=green]+12%[/color] hc")
+assertEq(Text._render("... {0|sign|percent|color} hc", -5), "... [color=red]-5%[/color] hc")
+assertEq(Text._render("{0|colorRev}", -5), "[color=green]-5[/color]")
+assertEq(Text._render("Lasts {0} day{0|plural}", 11), "Lasts 11 days")
+assertEq(Text._render("Lasts {0} day{0|plural}", 21), "Lasts 21 day")
+assertEq(Text._render("Get {0|sign|positive} damage for each {1|negative} fatigue", 1, 5),
+        "Get [color=green]+1[/color] damage for each [color=red]5[/color] fatigue")
 
 // Array
 assertEq(Array.sum([]), 0);

@@ -5,4 +5,4 @@ DATA_DIR = ~/.local/share/Steam/steamapps/common/Battle\ Brothers/data/
 SHELL := /bin/bash
 
 test:
-	squirrel test.nut
+	squirrel tests/test.nut
