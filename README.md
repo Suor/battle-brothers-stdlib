@@ -9,7 +9,7 @@ Currently is aimed to be bundled with your mod, so that people won't need to dow
 
 ```squirrel
 // Make local aliases for std namespaces
-local Rand = ::std.Rand, Re = ::std.Re, Str = ::std.Str, 
+local Rand = ::std.Rand, Re = ::std.Re, Str = ::std.Str, Text = ::std.Text, 
       Debug = ::std.Debug.with({prefix = "mymod: "});
 
 // Choose a random weapon
@@ -45,11 +45,13 @@ Str.join("_", split(id, "."))
 
 // Regexes
 local romanNumber = Re.find(this.getName(), " ([IVXLC]+)$");
-local versionNums = Re.all("1.4.25", "\d+"); // ["1", "4", "25"]
+local versionNums = Re.all("1.4.25", @"\d+"); // ["1", "4", "25"]
 
-// Patch tooltip text, add 5 to chance to hit
+// Patch tooltip text, add 5 to chance to hit, and make it green color
 local tooltip = getTooltip();
-tooltip[i].text = Re.replace(text, "(\d+)(% chance to hit)", @(x, end) (x.tointeger() + 5) + end);
+tooltip[i].text = Re.replace(tooltip[i].text, 
+    @"(\d+)(% chance to hit)", 
+    @(x, end) Text.positive(x.tointeger() + 5) + end);
 ```
 
 For a full list of things see below \[TO BE DONE\]. 
