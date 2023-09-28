@@ -430,6 +430,8 @@ extend(Debug, {
     }
 })
 
+// TODO: sort indexes
+// TODO: add filter
 std.debug <- function(data, options = {}) {
     this.logInfo("<pre>" + Debug.pp(data, options) + "</pre>")
 }
