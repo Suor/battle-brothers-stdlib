@@ -148,44 +148,8 @@ extend(Text, {
         local p = abs(value);
         return p % 10 != 1 ? "s" : p % 100 / 10 == 1 ? "s" : "";
     }
-
-    function _render(_template, ...) {
-        // "Gives {0|sign|percent|colored} hit chance"
-        // "Will heal in {0} day{0|plural}"
-        return Re.replace(_template, @"\{(\d+)((?:\|\w+)+)?\}", function (idx, filtersStr) {
-            if (idx.tointeger() >= vargv.len())
-                throw "Argument " + idx + " was not passed to Text.render()";
-            local value = vargv[idx.tointeger()];
-            local result = value;
-            if (filtersStr != "") {
-                local filters = split(filtersStr.slice(1), "|");
-                foreach (f in filters) {
-                    if (!(f in Text._Filters))
-                        throw "Unknown filter \"" + f + "\" in Text.render()";
-                    result = Text._Filters[f](result, value)
-                }
-            }
-            return result;
-        })
-    }
 })
-Text._Filters <- {
-    function sign(str, value) {
-        return (value > 0 ? "+" : "") + str;
-    }
-    function percent(str, value) {
-        return str + "%"
-    }
-    function positive(str, value) {return Text.positive(str)}
-    function negative(str, value) {return Text.negative(str)}
-    function color(str, value) {
-        return value > 0 ? Text.positive(str) : value < 0 ? Text.negative(str) : str;
-    }
-    function colorRev(str, value) {
-        return value > 0 ? Text.negative(str) : value < 0 ? Text.positive(str) : str;
-    }
-    function plural(str, value) {return Text.plural(value)}
-}
+
 
 extend(Table, {
     extend = extend

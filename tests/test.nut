@@ -23,17 +23,17 @@ assert(Re.find("Ivan IV Formidable", " ([IVXLC]+)$") == null)
 assert(Re.test("Ivan IV Formidable", " ([IVXLC]+)$") == false)
 assert(Str.join("_", Re.find("Ivan IV", "^(\\w+) ([IVXLC]+)$")) == "Ivan_IV")
 
-local versionRe = regexp("^(\\d+)(?:\\.(\\d+))?$")
+local versionRe = regexp(@"^(\d+)(?:\.(\d+))?$")
 assertEq(Re.find("2.15", versionRe), ["2", "15"])
 assertEq(Re.find("2", versionRe), ["2", null])
 
-assertEq(Re.all("hi, there", "\\w+"), ["hi", "there"])
-assertEq(Re.all("a = 12, xyz = 7", "(\\w+) = (\\d+)"), [["a", "12"], ["xyz", "7"]])
+assertEq(Re.all("hi, there", @"\w+"), ["hi", "there"])
+assertEq(Re.all("a = 12, xyz = 7", @"(\w+) = (\d+)"), [["a", "12"], ["xyz", "7"]])
 assertEq(Re.all("a1a2a", "a\\d"), ["a1", "a2"])
 
-assertEq(Re.replace("a1a23a", "a\\d+", "x_"), "x_x_a")
-assertEq(Re.replace("_1_17_", "_(\\d+)", (@(m) "." + (m.tointeger() + 1))), ".2.18_")
-assertEq(Re.replace("a1_b45", "(\\w)(\\d+)", (@(c, d) c.toupper() + (d.tointeger() + 1))), "A2_B46")
+assertEq(Re.replace("a1a23a", @"a\d+", "x_"), "x_x_a")
+assertEq(Re.replace("_1_17_", @"_(\d+)", (@(m) "." + (m.tointeger() + 1))), ".2.18_")
+assertEq(Re.replace("a1_b45", @"(\w)(\d+)", (@(c, d) c.toupper() + (d.tointeger() + 1))), "A2_B46")
 
 // Text
 assertEq(Text.positive("good"), "[color=green]good[/color]")
@@ -42,15 +42,6 @@ assertEq(Text.plural(1), "")
 assertEq(Text.plural(2), "s")
 assertEq(Text.plural(11), "s")
 assertEq(Text.plural(21), "")
-
-// Still experimental
-assertEq(Text._render("... {0|sign|percent|color} hc", 12), "... [color=green]+12%[/color] hc")
-assertEq(Text._render("... {0|sign|percent|color} hc", -5), "... [color=red]-5%[/color] hc")
-assertEq(Text._render("{0|colorRev}", -5), "[color=green]-5[/color]")
-assertEq(Text._render("Lasts {0} day{0|plural}", 11), "Lasts 11 days")
-assertEq(Text._render("Lasts {0} day{0|plural}", 21), "Lasts 21 day")
-assertEq(Text._render("Get {0|sign|positive} damage for each {1|negative} fatigue", 1, 5),
-        "Get [color=green]+1[/color] damage for each [color=red]5[/color] fatigue")
 
 // Array
 assertEq(Array.sum([]), 0);
