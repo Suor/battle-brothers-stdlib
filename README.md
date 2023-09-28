@@ -64,4 +64,52 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
 
 ## Docs
 
-... To be filled in ...
+Note that all examples in this section assume namespaces are aliased locally, like `local Rand = ::std.Rand`. I find convenient to do so, but this is certainly not required, it's perfectly ok to just use `::std` namespace directly, i.e. `::std.Text.positive("+15%")`, which might make more sense if you only use it once or twice in a file. 
+
+
+### String Utils
+
+#### `Str.replace(str, old, new, [count])`
+
+Replaces occurances of `old` in a given string by `new`. If `count` is passed, only the first `count` occurences are replaced.
+
+#### `Str.startswith(str, prefix)`
+
+Checks whether a string starts with a certain prefix. I.e. disable a skill if it's active:
+```squirrel
+if (Str.startswith("actives.", skill.getID())) skill.m.IsUsable = false;
+```
+
+#### `Str.endswith(str, suffix)`
+
+Checks whether a string ends with a certain suffix. 
+```squirrel
+// Remove old +- chance to hit
+local tooltip = getTooltip().filter(
+    @(_, rec) rec.type != "text" || Str.endswith(rec.text, "chance to hit");
+```
+
+#### `Str.cutprefix(str, prefix)`
+
+If a given string starts with `prefix` then returns the string with the prefix cut. Otherwise returns the whole string.
+
+#### `Str.cutsuffix(str, suffix)`
+
+If a given string ends with `suffix` then returns the string with the suffix cut. Otherwise returns the whole string.
+
+#### `Str.join(sep, strings)`
+
+Joins an array of strings into one using given separator. 
+```squirrel
+// Title case a sentence
+Str.join(" ", split("hey there", " ").map(Str.capitalize))
+```
+
+### `Str.capitalize(str)`
+
+Returns a copy of the string with its first character capitalized and the rest lowercased.
+
+
+### Regular expressions
+
+...
