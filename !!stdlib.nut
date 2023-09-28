@@ -3,7 +3,7 @@
 
 // Alias things to make it easier for us inside. These are still global and accessible from outside
 // Ensure only the latest version goes as ::std
-local version = 1.4;
+local version = 1.42;
 if ("std" in getroottable() && ::std.version >= version) return;
 local std = ::std <- {version = version};
 local Str = std.Str <- {},
