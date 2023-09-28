@@ -204,7 +204,7 @@ tooltip.push({..., text = Text.negative("Out of ammo")})
 
 // Dynamically decide whether it's good or bad
 local colored = bonus > 0 ? Text.positive : Text.negative;
-text = "Has " + colored(Text.signed(bonus) + "%") + " chance to hit"
+text = "Has " + colored((bonus > 0 ? "+" : "") + bonus + "%") + " chance to hit"
 ```
 
 In complex situations might be combined with the `format()` built-in:
