@@ -112,7 +112,7 @@ extend(Re, {
             local replString = repl;
             if (typeof repl == "function") {
                 local v = Re._captureToValue(str, c);
-                replString = typeof v == "array" ? repl.acall([null].extend(v)) : repl(v);
+                replString = typeof v == "array" ? repl.acall(Array.concat([null], v)) : repl(v);
             }
             res += str.slice(pos, c[0].begin) + replString;
             pos = c[0].end;
