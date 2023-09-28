@@ -44,9 +44,20 @@ assertEq(Text.plural(11), "s")
 assertEq(Text.plural(21), "")
 
 // Array
-assertEq(Array.sum([]), 0);
-assertEq(Array.sum([1 2 3]), 6);
-assert(Array.sum([1.1 2.2 3.3]) - 6.6 < 0.01);
+assertEq(Array.sum([]), 0)
+assertEq(Array.sum([1 2 3]), 6)
+assert(Array.sum([1.1 2.2 3.3]) - 6.6 < 0.01)
+
+assertEq(Array.max([]), null)
+assertEq(Array.min([]), null)
+assertEq(Array.max([42]), 42)
+assertEq(Array.min([42]), 42)
+assertEq(Array.max([1 5 2 0 3]), 5)
+assertEq(Array.min([1 5 2 0 3]), 0)
+assertEq(Array.max(["b" "x" "a" "k"]), "x")
+assertEq(Array.min(["b" "x" "a" "k"]), "a")
+assertEq(Array.max(["ab" "xyz" "ijkl" "stu"], @(x) x.len()), "ijkl")
+assertEq(Array.min(["ab" "xyz" "ijkl" "stu"], @(x) x.len()), "ab")
 
 // Rand
 local Rand = std.Rand.using(::rng_new(1));  // set generator with a fixed seed
