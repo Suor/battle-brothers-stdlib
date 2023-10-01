@@ -1,34 +1,21 @@
 # Battle Brothers stdlib
 
-Or just a thing to take the place of lacking Squirrel/Battle Brothers standard library. An assortment of various utils to help coding mods. 
+Or just a thing to take the place of lacking Squirrel/Battle Brothers standard library. An assortment of various utils to help coding mods. If you here first time I suggest starting from the [Usage](#usage) section.
 
-<!-- MarkdownTOC autolink="true" levels="2,3,4" autoanchor="false" -->
+<!-- MarkdownTOC autolink="true" levels="1,2,3" autoanchor="false" start="here" -->
 
 - [Usage](#usage)
 - [Feedback](#feedback)
 - [Docs](#docs)
-- [String Utils](#string-utils)
-    - [`capitalize(str)`](#capitalizestr)
-    - [`startswith(str, prefix)`](#startswithstr-prefix)
-    - [`endswith(str, suffix)`](#endswithstr-suffix)
-    - [`cutprefix(str, prefix)`](#cutprefixstr-prefix)
-    - [`cutsuffix(str, suffix)`](#cutsuffixstr-suffix)
-    - [`join(sep, strings)`](#joinsep-strings)
-    - [`replace(str, old, new, [count])`](#replacestr-old-new-count)
-- [Regular Expressions](#regular-expressions)
-    - [`find(str, re)`](#findstr-re)
-    - [`test(str, re)`](#teststr-re)
-    - [`all(str, re)`](#allstr-re)
-    - [`replace(str, re, repl)`](#replacestr-re-repl)
-- [Text Formatting](#text-formatting)
-    - [`positive(value)`, `negative(value)`, `damage(value)`](#positivevalue-negativevalue-damagevalue)
-    - [`colored(value, color)`](#coloredvalue-color)
-    - [`plural(num)`](#pluralnum)
+    - [String Utils](#string-utils)
+    - [Regular Expressions](#regular-expressions)
+    - [Text Formatting](#text-formatting)
+- [Index](#index)
 
 <!-- /MarkdownTOC -->
 
 
-## Usage
+# Usage
 
 Currently is aimed to be bundled with your mod, so that people won't need to download an extra thing. To use it just copy `!!stdlib.nut` from here into `scripts/!!stdlib_mymod.nut`. Then:
 
@@ -82,17 +69,17 @@ tooltip[i].text = Re.replace(tooltip[i].text,
 For a full list of things see below \[TO BE DONE\]. 
 
 
-## Feedback
+# Feedback
 
 Any suggestions, bug reports, other feedback are welcome. The best place for it is this Github, i.e. just create an issue. You can also find me on Discord by **suor.hackflow** username.
 
 
-## Docs
+# Docs
 
 Note that all examples here assume namespaces are aliased locally, like `local Rand = ::std.Rand`. I find convenient to do so, but this is certainly not required, it's perfectly ok to just use `::std` namespace directly, i.e. `::std.Text.positive("+15%")`, which might make more sense if you only use it once or twice in a file. 
 
 > [!NOTE]  
-> This is a long doc. Click the contents icon in the top left corner to bring up TOC. May also use `Ctrl+F` to jump to whatever you are looking for quickly.
+> This is a long doc. Click the contents icon in the top left corner to bring up TOC or "README.md" header itself to jump to the start. May also use `Ctrl+F` to jump to whatever you are looking for quickly. There is also the [Index](#index) in the end.
 
 
 ## String Utils
@@ -119,7 +106,10 @@ local tooltip = getTooltip().filter(
 
 #### `cutprefix(str, prefix)`
 
-If a given string starts with `prefix` then returns the string with the prefix cut. Otherwise returns the whole string.
+If a given string starts with `prefix` then returns the string with the prefix cut. Otherwise returns the whole string:
+```squirrel
+local short = Str.cutprefix(_entity.getName(), "Ancient ");
+```
 
 #### `cutsuffix(str, suffix)`
 
@@ -232,4 +222,29 @@ Text.colored(bro.getName(), "#1e468f") + " hits ..."
 Returns `"s"` if a given number should be pluralized:
 ```squirrel
 format("Will heal in %i day%s", days, Text.plural(days))
-```  
+```
+
+
+# Index
+
+<!-- MarkdownTOC autolink="true" levels="2,3,4" autoanchor="false" start="top" -->
+
+- [String Utils](#string-utils)
+    - [`capitalize(str)`](#capitalizestr)
+    - [`startswith(str, prefix)`](#startswithstr-prefix)
+    - [`endswith(str, suffix)`](#endswithstr-suffix)
+    - [`cutprefix(str, prefix)`](#cutprefixstr-prefix)
+    - [`cutsuffix(str, suffix)`](#cutsuffixstr-suffix)
+    - [`join(sep, strings)`](#joinsep-strings)
+    - [`replace(str, old, new, [count])`](#replacestr-old-new-count)
+- [Regular Expressions](#regular-expressions)
+    - [`find(str, re)`](#findstr-re)
+    - [`test(str, re)`](#teststr-re)
+    - [`all(str, re)`](#allstr-re)
+    - [`replace(str, re, repl)`](#replacestr-re-repl)
+- [Text Formatting](#text-formatting)
+    - [`positive(value)`, `negative(value)`, `damage(value)`](#positivevalue-negativevalue-damagevalue)
+    - [`colored(value, color)`](#coloredvalue-color)
+    - [`plural(num)`](#pluralnum)
+
+<!-- /MarkdownTOC -->
