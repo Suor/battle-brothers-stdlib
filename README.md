@@ -10,6 +10,7 @@ Or just a thing to take the place of lacking Squirrel/Battle Brothers standard l
     - [String Utils](#string-utils)
     - [Regular Expressions](#regular-expressions)
     - [Text Formatting](#text-formatting)
+    - [Random Generator Helpers](#random-generator-helpers)
 - [Index](#index)
 
 <!-- /MarkdownTOC -->
@@ -47,7 +48,7 @@ Debug.log("loot for wolf", items);
 // Roll weighted talent stars
 foreach (i in Rand.take(3, [0 1 2 3 4 5 6 7], weights)) {
     local w = weights[i];
-    _player.m.Talents[i] = Rand.choice([1 2 3], [60 30*w 10*w])
+    _player.m.Talents[i] = Rand.choice([1 2 3], [60 30*w 10*w]);
 }
 
 // Various str utils
@@ -225,6 +226,84 @@ format("Will heal in %i day%s", days, Text.plural(days))
 ```
 
 
+## Random Generator Helpers
+
+<!-- #### `int(a, b)`
+
+Returns an integer from `a` to `b`, including these two numbers. Same as `Math.rand()` but see [`using()`](#using) below.
+ -->
+#### `float([a, b])`
+
+Returns a float number `x`, which satisfies `a <= x < b`. If used without params assumes `a = 0, b = 1`.
+
+#### `chance(prob)`
+
+Returns `true` with a given probability, which goes from 0 to 1.0:
+```squirrel
+// Every third guy with a decent armor, gets an upgrade
+if (armor.getArmorMax() >= 95 && Rand.chance(0.333)) {
+    armor.setUpgrade(this.new("scripts/items/armor_upgrades/double_mail_upgrade"));
+}
+```
+
+<!-- ### `index(n, weights = null)` -->
+
+#### `choice(options, weights = null)`
+
+Randomly chooses on of the given options, if weights are passed then each option will be chosen with a probability proportional to its weight:
+```squirrel
+// Play a random sound
+local sound = Rand.choice(["curse_01.wav" "curse_02.wav"]);
+::Sound.play("sounds/combat/mymod_" + sound), ::Const.Sound.Volume.Skill, actor.getPos());
+
+// Half of the guys get throwing weapons, mostly axes
+if (Rand.chance(0.5)) {
+    local weapon = Rand.choice(["throwing_axe" "javelin"], [2 1]);
+    this.m.Items.addToBag(this.new("scripts/items/weapons/" + weapon));
+}
+```
+
+#### `choices(num, options, weights = null)`
+
+Makes an array of `num` random choices from the given options, each might be taken any number of times. Weights apply same as in `choice()` above.
+```squirrel
+// Add 3 random trade goods to the stash
+foreach (name in Rand.choices(3, ["salt" "silk" "spices" "furs" "dies"])) {
+    local item = ::new(::new("scripts/items/trade/" + name + "_item"));
+    ::World.Assets.getStash().add(item);
+}
+
+// Roll two loaded dices
+local rolls = Rand.choices(2, [1 2 3 4 5 6], [0.9 1 1 1 1 1.1]);
+```
+
+#### `take(num, options, weights = null)`
+
+Choose `num` non-repeated random options from the given array. Basically same as `choices()` but with no repeats:
+```squirrel
+// Apply two completely random traits to a bro
+foreach (trait in Rand.take(2, ::Const.CharacterTraits)) {
+    bro.getSkills().add(new(trait[1]));
+}
+```
+
+<!-- #### `insert(arr, item, num = 1)` -->
+
+#### `poly(tries, prob)`
+
+Returns a number of successful rolls of total `tries` ones, each having a given probability of success. This always returns an integer number from 0 to `tries` with an average value of `tries * prob`.
+```squirrel
+// Flip a coin 10 times
+local count = Rand.poly(10, 0.5);
+
+// Loose 3 medicine for around every fifth bro
+local num = Rand.poly(::World.getPlayerRoster().getAll().len(), 0.2);
+::World.Assets.addMedicine(-3 * num);
+```
+
+<!-- #### `using(gen)` -->
+
+
 # Index
 
 <!-- MarkdownTOC autolink="true" levels="2,3,4" autoanchor="false" start="top" -->
@@ -246,5 +325,12 @@ format("Will heal in %i day%s", days, Text.plural(days))
     - [`positive(value)`, `negative(value)`, `damage(value)`](#positivevalue-negativevalue-damagevalue)
     - [`colored(value, color)`](#coloredvalue-color)
     - [`plural(num)`](#pluralnum)
+- [Random Generator Helpers](#random-generator-helpers)
+    - [`float([a, b])`](#floata-b)
+    - [`chance(prob)`](#chanceprob)
+    - [`choice(options, weights = null)`](#choiceoptions-weights--null)
+    - [`choices(num, options, weights = null)`](#choicesnum-options-weights--null)
+    - [`take(num, options, weights = null)`](#takenum-options-weights--null)
+    - [`poly(tries, prob)`](#polytries-prob)
 
 <!-- /MarkdownTOC -->
