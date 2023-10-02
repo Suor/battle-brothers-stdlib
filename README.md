@@ -6,7 +6,7 @@ Or just a thing to take the place of lacking Squirrel/Battle Brothers standard l
 
 - [Usage](#usage)
 - [Feedback](#feedback)
-- [Docs](#docs)
+- [API](#api)
     - [String Utils](#string-utils)
     - [Regular Expressions](#regular-expressions)
     - [Text Formatting](#text-formatting)
@@ -27,7 +27,7 @@ local Rand = ::std.Rand, Re = ::std.Re, Str = ::std.Str, Text = ::std.Text,
 
 // Choose a random weapon
 local weapon = Rand.choice(["scramasax" "ancient/khopesh" "falchion"]);
-actor.m.Items.equip(new("scripts/items/weapons/" + weapon));
+actor.m.Items.equip(::new("scripts/items/weapons/" + weapon));
 
 // Same but with different weights
 local weapon = Rand.choice(["scramasax" "ancient/khopesh" "falchion"], [4 2 1]);
@@ -75,7 +75,7 @@ For a full list of things see below \[TO BE DONE\].
 Any suggestions, bug reports, other feedback are welcome. The best place for it is this Github, i.e. just create an issue. You can also find me on Discord by **suor.hackflow** username.
 
 
-# Docs
+# API
 
 Note that all examples here assume namespaces are aliased locally, like `local Rand = ::std.Rand`. I find convenient to do so, but this is certainly not required, it's perfectly ok to just use `::std` namespace directly, i.e. `::std.Text.positive("+15%")`, which might make more sense if you only use it once or twice in a file. 
 
@@ -242,7 +242,7 @@ Returns `true` with a given probability, which goes from 0 to 1.0:
 ```squirrel
 // Every third guy with a decent armor, gets an upgrade
 if (armor.getArmorMax() >= 95 && Rand.chance(0.333)) {
-    armor.setUpgrade(this.new("scripts/items/armor_upgrades/double_mail_upgrade"));
+    armor.setUpgrade(::new("scripts/items/armor_upgrades/double_mail_upgrade"));
 }
 ```
 
@@ -254,12 +254,12 @@ Randomly chooses on of the given options, if weights are passed then each option
 ```squirrel
 // Play a random sound
 local sound = Rand.choice(["curse_01.wav" "curse_02.wav"]);
-::Sound.play("sounds/combat/mymod_" + sound), ::Const.Sound.Volume.Skill, actor.getPos());
+::Sound.play("sounds/combat/mymod_" + sound, ::Const.Sound.Volume.Skill, actor.getPos());
 
 // Half of the guys get throwing weapons, mostly axes
 if (Rand.chance(0.5)) {
     local weapon = Rand.choice(["throwing_axe" "javelin"], [2 1]);
-    this.m.Items.addToBag(this.new("scripts/items/weapons/" + weapon));
+    this.m.Items.addToBag(::new("scripts/items/weapons/" + weapon));
 }
 ```
 
@@ -269,7 +269,7 @@ Makes an array of `num` random choices from the given options, each might be tak
 ```squirrel
 // Add 3 random trade goods to the stash
 foreach (name in Rand.choices(3, ["salt" "silk" "spices" "furs" "dies"])) {
-    local item = ::new(::new("scripts/items/trade/" + name + "_item"));
+    local item = ::new("scripts/items/trade/" + name + "_item");
     ::World.Assets.getStash().add(item);
 }
 
@@ -283,7 +283,7 @@ Choose `num` non-repeated random options from the given array. Basically same as
 ```squirrel
 // Apply two completely random traits to a bro
 foreach (trait in Rand.take(2, ::Const.CharacterTraits)) {
-    bro.getSkills().add(new(trait[1]));
+    bro.getSkills().add(::new(trait[1]));
 }
 ```
 
