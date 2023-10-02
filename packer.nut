@@ -6,19 +6,21 @@ local Packer;
 Packer = ::Packer <- {
     magic = "@>" // A signature to separate our strings from random junk
     version = 1
-    short = 'z' - '0' // 74, max value for a "short integer"
+    lchar = '!' - '0' // -16, lowest value for a "char integer"
+    hchar = 'z' - '0' //  74, highest value for a "char integer"
     op = {
         "null": '_'
         "true": '+'
         "false": '-'
-        integer = ','
+        cint = ','
+        integer = ';'
         float = '.'
         sstring = "'"[0]
         lstring = '"'
         array = '['
         table = '{'
         ref = '<'
-        // unused special chars: `~!@#$%^&*()=};:">?]|\/
+        // unused special chars: `~!@#$%^&*()=}:>?]|\/
     }
 
     function pack(_data) {
@@ -43,6 +45,7 @@ Packer = ::Packer <- {
             case "bool":
                 return ops[_val.tostring()];
             case "integer":
+                if (Packer.lchar <= _val && _val <= Packer.hchar) return ops.cint + i2c(_val);
             case "float":
                 local s = _val.tostring();
                 return ops[typ] + i2c(s.len()) + s;
@@ -51,7 +54,7 @@ Packer = ::Packer <- {
                 if (ref != null) return ops.ref + i2c(ref);
                 _ctx.add(_val);
                 local n = _val.len();
-                if (n <= Packer.short) return ops.sstring + i2c(n) + _val;
+                if (n <= Packer.hchar) return ops.sstring + i2c(n) + _val;
                 return ops.lstring + _pack(n, _ctx) + _val;
             case "array":
                 local n = _val.len();
@@ -77,19 +80,15 @@ Packer = ::Packer <- {
                 return true;
             case op["false"]:
                 return false;
+            case op.cint:
+                return c2i(_in.char());
             case op.integer:
-                local n = c2i(_in.char());
-                return _in.read(n).tointeger();
             case op.float:
                 local n = c2i(_in.char());
-                return _in.read(n).tofloat();
+                return code == op.integer ? _in.read(n).tointeger() : _in.read(n).tofloat();
             case op.sstring:
-                local n = c2i(_in.char());
-                local str = _in.read(n);
-                _in.cache.add(str);
-                return str;
             case op.lstring:
-                local n = _unpack(_in);
+                local n = code == op.sstring ? c2i(_in.char()) : _unpack(_in);
                 local str = _in.read(n);
                 _in.cache.add(str);
                 return str;
@@ -155,7 +154,7 @@ Packer = ::Packer <- {
     }
 
     function _i2c(_i) {
-        assert(_i <= Packer.short, "Integer too big for char");
+        assert(Packer.lchar <= _i && _i <= Packer.hchar, "Can't fit integer into char");
         return ('0' + _i).tochar();
     }
     function _c2i(_c) {
