@@ -1,4 +1,4 @@
-local Util = ::std.Util;
+local Util = ::std.Util, Str = ::std.Str;
 
 local function joinLength(items, sepLen) {
     if (items.len() == 0) return 0;
