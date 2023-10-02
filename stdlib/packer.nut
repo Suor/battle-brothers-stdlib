@@ -3,7 +3,7 @@
 // Can only pack primitive values, arrays and tables. Borks on functions, classes, instances, etc.
 local _pack, _unpack, i2c, c2i, op, ops;
 local Packer;
-Packer = ::Packer <- {
+Packer = ::std.Packer <- {
     magic = "@>" // A signature to separate our strings from random junk
     version = 1
     lchar = '!' - '0' // -16, lowest value for a "char integer"
@@ -105,7 +105,7 @@ Packer = ::Packer <- {
             case op.ref:
                 return _in.cache.get(c2i(_in.char()));
             default:
-                throw format("Unexpected op code '%s' (%i)", code.tochar(), code);
+                throw format("Unknown op code '%s' (%i)", code.tochar(), code);
         }
     }
 
@@ -165,7 +165,7 @@ op = Packer.op;
 ops = Packer.ops <- {};
 foreach (k, v in op) ops[k] <- v.tochar();
 
-_pack = ::Packer._pack;
-_unpack = ::Packer._unpack;
-i2c = ::Packer._i2c;
-c2i = ::Packer._c2i;
+_pack = Packer._pack;
+_unpack = Packer._unpack;
+i2c = Packer._i2c;
+c2i = Packer._c2i;

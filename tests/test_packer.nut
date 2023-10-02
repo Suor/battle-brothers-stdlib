@@ -1,15 +1,7 @@
-dofile("!!stdlib.nut", true);
-dofile("tests/helpers.nut", true);
-dofile("packer.nut", true);
-
-local Str = ::std.Str, Re = ::std.Re, Text = ::std.Text,
-    Debug = ::std.Debug, Util = ::std.Util, Array = ::std.Array;
-
-
 local function assertPack(data, packed = null) {
-    local dataPacked = ::Packer.pack(data);
+    local dataPacked = ::std.Util.pack(data);
     if (packed) assertEq(dataPacked, packed);
-    local unpacked = ::Packer.unpack(dataPacked);
+    local unpacked = ::std.Util.unpack(dataPacked);
     assertEq(data, unpacked);
 }
 
@@ -74,4 +66,4 @@ for (local i = '0'; i <= 'z'; i++) data.push("@" + i.tochar())
 assertPack(data)
 
 // Done
-print("Tests OK\n")
+print("Packer OK\n")

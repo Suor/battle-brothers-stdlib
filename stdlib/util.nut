@@ -1,4 +1,4 @@
-local Array = ::std.Array, Table = ::std.Table, Util = ::std.Util;
+local Array = ::std.Array, Table = ::std.Table, Packer = ::std.Packer, Util = ::std.Util;
 Table.extend(Util, {
     // These are moved to appropriate namespaces, here for backwards compatibility
     concat = Array.concat
@@ -8,6 +8,10 @@ Table.extend(Util, {
     all = Array.all
     any = Array.any
     sum = Array.sum
+
+    // Shortcuts
+    pack = Packer.pack
+    unpack = Packer.unpack
 
     function clamp(value, min, max) {
         return value >= max ? max : value <= min ? min : value;
