@@ -1,3 +1,7 @@
+::include <- function (script) {
+    return dofile(script + ".nut", true)
+}
+
 ::Const <- {
     UI = {
         Color = {

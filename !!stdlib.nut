@@ -1,23 +1,17 @@
-// DO NOT MODIFY THIS FILE
-// TO USE PUT IT INTO scripts/ AND RENAME TO !!stdlib_yourmod.nut
-
 // Alias things to make it easier for us inside. These are still global and accessible from outside
 // Ensure only the latest version goes as ::std
 local version = 1.5;
 if ("std" in getroottable() && ::std.version >= version) return;
 local std = ::std <- {version = version, Util = {}};
 
-local function load(script) {
-    return "dofile" in getroottable() ? dofile(script + ".nut", true) : ::include(script);
-}
-load("stdlib/array");
-load("stdlib/table");
-load("stdlib/str");
-load("stdlib/re");
-load("stdlib/rand");
-load("stdlib/debug");
-load("stdlib/packer");
-load("stdlib/util");
+::include("stdlib/array");
+::include("stdlib/table");
+::include("stdlib/str");
+::include("stdlib/re");
+::include("stdlib/rand");
+::include("stdlib/debug");
+::include("stdlib/packer");
+::include("stdlib/util");
 
 local Text;
 Text = ::std.Text <- {
