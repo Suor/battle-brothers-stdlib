@@ -72,7 +72,7 @@ tooltip[i].text = Re.replace(tooltip[i].text,
     @(x, end) Text.positive(x.tointeger() + 5) + end);
 ```
 
-For a full list of things see below \[TO BE DONE\]. 
+For a full list of things see below or jump to [Index](#index).
 
 
 # Compatibility
