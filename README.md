@@ -5,12 +5,17 @@ Or just a thing to take the place of lacking Squirrel/Battle Brothers standard l
 <!-- MarkdownTOC autolink="true" levels="1,2,3" autoanchor="false" start="here" -->
 
 - [Usage](#usage)
-- [Feedback](#feedback)
+- [Compatibility](#compatibility)
 - [API](#api)
     - [String Utils](#string-utils)
     - [Regular Expressions](#regular-expressions)
     - [Text Formatting](#text-formatting)
     - [Random Generator Helpers](#random-generator-helpers)
+    - [Array](#array)
+    - [Table](#table)
+    - [Debug Helpers](#debug-helpers)
+    - [Other Utils](#other-utils)
+- [Feedback](#feedback)
 - [Index](#index)
 
 <!-- /MarkdownTOC -->
@@ -18,7 +23,7 @@ Or just a thing to take the place of lacking Squirrel/Battle Brothers standard l
 
 # Usage
 
-Currently is aimed to be bundled with your mod, so that people won't need to download an extra thing. To use it just copy `!!stdlib.nut` from here into `scripts/!!stdlib_mymod.nut`. Then:
+Install it from [NexusMods](nexus-mods) *(not published yet)*, or grab from here and zip. Then:
 
 ```squirrel
 // Make local aliases for std namespaces
@@ -70,9 +75,11 @@ tooltip[i].text = Re.replace(tooltip[i].text,
 For a full list of things see below \[TO BE DONE\]. 
 
 
-# Feedback
+# Compatibility
 
-Any suggestions, bug reports, other feedback are welcome. The best place for it is this Github, i.e. just create an issue. You can also find me on Discord by **suor.hackflow** username.
+Is compatible with everything. Does not modify the game only provides useful utilities. Is safe to add and remove at any time.
+
+Additionally, stdlib is guaranteed to be backwards compatible, i.e. it is always safe to upgrade it to a newer version. This covers all the functions and their params documented here, any pieces not metioned in this README should not be used. Also, the specific output of functions intended to be read by humans - several debug utils - are not covered by these guarantees.
 
 
 # API
@@ -303,6 +310,147 @@ local num = Rand.poly(::World.getPlayerRoster().getAll().len(), 0.2);
 
 <!-- #### `using(gen)` -->
 
+## Array
+
+#### `concat(...arrays)`
+
+Concatenates all the passed arrays into a single one.
+```squirrel
+repl.acall(Array.concat([null], vargv))
+```
+
+#### `all(arr, func)`
+
+Checks that `func` returns truthy values for all elements in a given array.
+```squirrel
+// Too early for this event
+local bros = ::World.getPlayerRoster().getAll();
+if (Array.all(bros, @(bro) bro.getLevel() < 6)) return;
+```
+
+#### `any(arr, func)`
+
+Checks that `func` returns a truthy value for at least one element in a given array.
+
+```squirrel
+// Check whether any bros are wounded
+local haveWounded = Array.any(bros, @(bro) bro.getHitpointsPct() < 1.0);
+
+// Have a decent spare weapon
+local stash = this.World.Assets.getStash().getItems();
+Array.any(stash, @(item) item.isItemType(::Const.Items.ItemType.Weapon) && item.getValue() >= 1000);
+```
+
+#### `max(arr, key = null)`
+
+Find a max element in a given array. If `key` is passed then calls it for each element to judje "how big is it".
+```squirrel
+// Find a bro with a highest pay
+local expensiveOne = Array.max(bros, @(bro) bro.getDailyCost());
+
+// Get the most valuable item in stash
+local item = Array.max(stash, @(item) item.getValue());
+```
+
+#### `min(arr, key = null)`
+
+Find a min element in a given array. If `key` is passed then calls it for each element to judje "how big is it".
+
+#### `sum(arr)`
+
+Sums the elements of an array, returns 0 for an empty one.
+```squirrel
+local talentScore = Array.sum(bro.getTalents());
+
+// Get total weight of bagged items
+local items = bro.getItems().getAllItemsAtSlot(::Const.ItemSlot.Bag);
+local totalWeight = Array.sum(items.map(@(item) item.getStaminaModifier()));
+```
+
+## Table
+
+#### `keys(table)`
+
+Returns an array of table keys.
+
+#### `values(table)`
+
+Returns an array of table values.
+
+#### `extend(dst, src)`
+
+Extends `dst` table with key, value pairs from `src`. Any existing keys are overwritten. Returns the `dst` table.
+
+#### `merge(table1, table2)`
+
+Creates a new table with contents of given tables merged. For dup keys second table values are taken.
+```squirrel
+// Simulate named params
+local defaults = {prefix = "> ", depth = 3};
+function log(message, options = {}) {
+    options = Table.merge(defaults, options);
+    // ...
+}
+```
+
+## Debug Helpers
+
+#### `log(name, value, options = {})`
+
+Log a passed value under a given name. If value is table or array then pretty print it. See `pp()` below for details and options.
+
+```squirrel
+Debug.log("bro", this, {depth = 2});
+// Will look like:
+// bro = {
+//     Level = 5
+//     PerkPoints = 1
+//     Talents = [0, 0, 0, 2, 0, 2, 0, 3]
+//     ...
+//     human = {
+//         Body = 0
+//         ...
+//     }
+// }
+```
+
+#### `::std.debug(data, options = {})`
+
+A quick way to pretty print data to a log. Same as above, but doesn't have name param and associated `<name> = ` prefix. Very handy in [Dev Console][dev-console].
+
+#### `pp(data, options = {})`
+
+Formats data into a pretty printed string, i.e. with text wrapped and indented properly. Works on arbitrary nested structures. Has "named params" in a form of `options` table keys:
+
+`depth` - maximum depth to print, defaults to 3,
+`prefix` - prepend each line with this, defaults to an empty string,
+`width` - assume this screen width in characters, defaults to 100,
+`funcs` - how to show functions in tables, defaults to "count", and might be set to:
+    "full" - prints "name = (function : 0x...)" for each function
+    "count" - print a total number of functions for table
+    false - skip functions
+
+Note that HTML ignores whitespace by default so `::logInfo(Debug.pp(data))` will not show up pretty when you open log.html in your browser, see `Debug.log()` and `::std.debug()` above.
+
+
+## Other Utils
+
+#### `clamp(value, min, max)`
+
+Boxes a given value into `[min, max]` bounds.
+```squirrel
+this.m.Hitpoints = Util.clamp(this.m.Hitpoints + change, 0, this.m.HitpointsMax);
+```
+
+#### `deepEq(a, b)`
+
+Compares given two values recursively, i.e. tables and arrays are compared by their contents not referencial equality.
+
+
+# Feedback
+
+Any suggestions, bug reports, other feedback are welcome. The best place for it is this Github, i.e. just create an issue. You can also find me on Discord by **suor.hackflow** username.
+
 
 # Index
 
@@ -332,5 +480,27 @@ local num = Rand.poly(::World.getPlayerRoster().getAll().len(), 0.2);
     - [`choices(num, options, weights = null)`](#choicesnum-options-weights--null)
     - [`take(num, options, weights = null)`](#takenum-options-weights--null)
     - [`poly(tries, prob)`](#polytries-prob)
+- [Array](#array)
+    - [`concat(...arrays)`](#concatarrays)
+    - [`all(arr, func)`](#allarr-func)
+    - [`any(arr, func)`](#anyarr-func)
+    - [`max(arr, key = null)`](#maxarr-key--null)
+    - [`min(arr, key = null)`](#minarr-key--null)
+    - [`sum(arr)`](#sumarr)
+- [Table](#table)
+    - [`keys(table)`](#keystable)
+    - [`values(table)`](#valuestable)
+    - [`extend(dst, src)`](#extenddst-src)
+    - [`merge(table1, table2)`](#mergetable1-table2)
+- [Debug Helpers](#debug-helpers)
+    - [`log(name, value, options = {})`](#logname-value-options--)
+    - [`::std.debug(data, options = {})`](#stddebugdata-options--)
+    - [`pp(data, options = {})`](#ppdata-options--)
+- [Other Utils](#other-utils)
+    - [`clamp(value, min, max)`](#clampvalue-min-max)
+    - [`deepEq(a, b)`](#deepeqa-b)
 
 <!-- /MarkdownTOC -->
+
+[nexus-mods]: https://www.nexusmods.com/battlebrothers/mods/...
+[dev-console]: https://www.nexusmods.com/battlebrothers/mods/380
