@@ -2,7 +2,10 @@
 // Ensure only the latest version goes as ::std
 local version = 1.5;
 if ("std" in getroottable() && ::std.version >= version) return;
-local std = ::std <- {version = version, Util = {}};
+
+// Util is forward declared, so that others might use it, even things added later with extend.
+// Hook is "imported" by some versions of Standout Enemies, but not used.
+local std = ::std <- {version = version, Util = {}, Hook = {}};
 
 // If Adam's hooks are present then register this, so that people could declare a dependency
 if ("mods_registerMod" in getroottable()) ::mods_registerMod("stdlib", version);
