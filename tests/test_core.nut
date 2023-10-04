@@ -1,5 +1,5 @@
 local Str = ::std.Str, Re = ::std.Re, Text = ::std.Text,
-    Debug = ::std.Debug, Util = ::std.Util, Array = ::std.Array;
+    Debug = ::std.Debug, Util = ::std.Util, Array = ::std.Array, Table = ::std.Table;
 
 // Str
 assert(Str.cutprefix("some_event", "some") == "_event")
@@ -54,6 +54,18 @@ assertEq(Array.min(["b" "x" "a" "k"]), "a")
 assertEq(Array.max(["ab" "xyz" "ijkl" "stu"], @(x) x.len()), "ijkl")
 assertEq(Array.min(["ab" "xyz" "ijkl" "stu"], @(x) x.len()), "ab")
 
+// Table
+assertEq(Table.keys({}), [])
+assertEq(Table.keys({a = 1}), ["a"])
+assertEq(Table.values({a = 1}), [1])
+
+local t = {}
+assertEq(Table.extend(t, {a = 1}), {a = 1})
+assertEq(t, {a = 1})
+local t = {}
+assertEq(Table.merge(t, {a = 1}), {a = 1})
+assertEq(t, {})
+
 // Rand
 local Rand = std.Rand.using(::rng_new(1));  // set generator with a fixed seed
 assertEq(Rand.index(10), 5);
@@ -64,6 +76,12 @@ assertEq(Rand.choices(3, ["a" "b" "c"]), ["b" "b" "a"]);
 assertEq(Rand.choices(3, ["a" "b" "c"], [3 2 1]), ["c" "a" "a"]);
 assertEq(Rand.take(3, ["a" "b" "c" "d" "e"]), ["c" "a" "e"]);
 assertEq(Rand.take(3, ["a" "b" "c" "d" "e"], [1 2 3 0 0]), ["a" "c" "b"]);
+
+// Util
+assertEq(Util.clamp(7, 1, 10), 7);
+assertEq(Util.clamp(-1, 1, 10), 1);
+assertEq(Util.clamp(10.1, 1, 10), 10);
+assertEq(Util.clamp(0.099, 0.1, 0.2), 0.1);
 
 // Done
 print("Core OK\n")

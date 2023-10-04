@@ -17,7 +17,7 @@
     }
     function values(data) { // Just .values() in newer Squirrel
         local res = [];
-        foreach (key, _ in data) res.push(values);
+        foreach (_, value in data) res.push(value);
         return res;
     }
     // TODO:
