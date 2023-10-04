@@ -23,7 +23,7 @@ Or just a thing to take the place of lacking Squirrel/Battle Brothers standard l
 
 # Usage
 
-Install it from [NexusMods](nexus-mods) *(not published yet)*, or grab from here and zip. Then:
+Install it from [NexusMods][nexus-mods], or grab from here and zip. Then:
 
 ```squirrel
 // Make local aliases for std namespaces
@@ -502,5 +502,5 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
 
 <!-- /MarkdownTOC -->
 
-[nexus-mods]: https://www.nexusmods.com/battlebrothers/mods/...
+[nexus-mods]: https://www.nexusmods.com/battlebrothers/mods/676
 [dev-console]: https://www.nexusmods.com/battlebrothers/mods/380
