@@ -446,6 +446,37 @@ this.m.Hitpoints = Util.clamp(this.m.Hitpoints + change, 0, this.m.HitpointsMax)
 
 Compares given two values recursively, i.e. tables and arrays are compared by their contents not referencial equality.
 
+#### `pack(data)`
+
+Packs arbitrary squirrel data structure into a "human readable" string. Contains only printable characters as long as passed data contains only printable strings. Can only pack primitive values, arrays and tables. Borks on functions, classes, instances, etc.
+
+The intended use is savegame serialization, but who knows.
+
+```squirrel
+local onSerialize = cls.onSerialize;
+cls.onSerialize = function(_out) {
+    // Write to flags before save
+    this.getFlags().set("mymod", Util.pack(this.m.MyMod))
+    onSerialize(_out);
+}
+```
+
+#### `unpack(data)`
+
+Unpacks whatever was packed with `Util.pack()`.
+
+```squirrel
+
+local onDeserialize = cls.onDeserialize;
+cls.onDeserialize = function(_out) {
+    onDeserialize(_out);
+    // Load from flags
+    local packed = this.getFlags().get("mymod")
+    if (packed) Table.extend(this.m.MyMod, Util.unpack(packed));
+}
+
+```
+
 
 # Feedback
 
@@ -499,6 +530,8 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
 - [Other Utils](#other-utils)
     - [`clamp(value, min, max)`](#clampvalue-min-max)
     - [`deepEq(a, b)`](#deepeqa-b)
+    - [`pack(data)`](#packdata)
+    - [`unpack(data)`](#unpackdata)
 
 <!-- /MarkdownTOC -->
 

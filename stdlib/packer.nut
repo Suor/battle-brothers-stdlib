@@ -154,7 +154,7 @@ Packer = ::std.Packer <- {
     }
 
     function _i2c(_i) {
-        assert(Packer.lchar <= _i && _i <= Packer.hchar, "Can't fit integer into char");
+        if (_i < Packer.lchar || _i > Packer.hchar) throw "Can't fit " + _i + " into char";
         return ('0' + _i).tochar();
     }
     function _c2i(_c) {
