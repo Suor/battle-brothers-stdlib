@@ -1,3 +1,18 @@
+1.6
+- added Util.pack() and .unpack()
+- added Table.deepExtend()
+- added 3-param Text.plural()
+- extended and fixed Debug.pp() and friends:
+    - number passed instead of opts means `{depth = number}`
+    - string passed instead of opts means `{filter = string}`
+    - added `filter` option, only show keys containing this as a substring
+    and their values
+    - table keys are sorted
+    - correctly overwrite all defaults when using `Debug.with()`
+    - correctly expand to multiline when having a long `name = ` prefix
+    - always show strings and tables with pp the same, no last depth bug
+    anymore
+
 1.5
 - initial public release
 
