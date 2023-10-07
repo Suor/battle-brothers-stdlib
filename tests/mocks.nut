@@ -13,3 +13,7 @@
         }
     }
 }
+
+::logInfo <- function(s) {
+    print(s + "\n")
+}
