@@ -33,8 +33,11 @@ Text = ::std.Text <- {
     // function signed(value) {
     //     return (value > 0 ? "+" : "") + value;
     // }
-    function plural(value) {
+    function plural(value, ...) {
+        if (vargv.len() != 0 && vargv.len() != 2)
+            throw "Use Text.plural(num) or Text.plural(num, singular, plural)";
+        local forms = vargv.len() == 2 ? vargv : ["" "s"];
         local p = abs(value);
-        return p % 10 != 1 ? "s" : p % 100 / 10 == 1 ? "s" : "";
+        return p % 10 != 1 ? forms[1] : p % 100 / 10 == 1 ? forms[1] : forms[0];
     }
 }

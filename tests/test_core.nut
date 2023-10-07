@@ -37,6 +37,10 @@ assertEq(Text.plural(1), "")
 assertEq(Text.plural(2), "s")
 assertEq(Text.plural(11), "s")
 assertEq(Text.plural(21), "")
+assertEq(Text.plural(1, "wolf", "wolves"), "wolf")
+assertEq(Text.plural(2, "wolf", "wolves"), "wolves")
+assertEq(Text.plural(11, "wolf", "wolves"), "wolves")
+assertEq(Text.plural(21, "wolf", "wolves"), "wolf")
 
 // Array
 assertEq(Array.sum([]), 0)
