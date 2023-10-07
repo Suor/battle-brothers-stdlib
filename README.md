@@ -225,11 +225,13 @@ Same as above but may specify any color, usually with `#xxxxxx` hex notation:
 Text.colored(bro.getName(), "#1e468f") + " hits ..."
 ```
 
-#### `plural(num)`
+#### `plural(num, [singular, plural])`
 
-Returns `"s"` if a given number should be pluralized:
+Returns `"s"` if a given number should be pluralized. In 3-argument form will return singular and plural form when appropriate:
 ```squirrel
 format("Will heal in %i day%s", days, Text.plural(days))
+
+"Chopped up " + Text.damage(kills) + Text.plural(kills, " wolf", " wolves"))
 ```
 
 
@@ -393,6 +395,17 @@ function log(message, options = {}) {
 }
 ```
 
+#### `deepExtend(dst, src)`
+
+Same as `Table.extend()` but does it recursively, i.e. if `dst[key]` and `src[key]` are both tables then does this extension for those too. Might be used to fill in an empty struct with data:
+```squirrel
+this.m.data = {foo = 0, bar = {baz = 0}, quix = []};
+Table.deepExtend(this.m.data, Util.unpack(::World.Flags.get("mymod")));
+```
+
+About this particular example, see more in [`Util.pack()`](#packdata) and in a special [piece on serialization](docs/savegames.md).
+
+
 ## Debug Helpers
 
 #### `log(name, value, options = {})`
@@ -416,19 +429,28 @@ Debug.log("bro", this, {depth = 2});
 
 #### `::std.debug(data, options = {})`
 
-A quick way to pretty print data to a log. Same as above, but doesn't have name param and associated `<name> = ` prefix. Very handy in [Dev Console][dev-console].
+A quick way to pretty print data to a log. Same as above, but doesn't have name param and associated `<name> = ` prefix. Very handy in [Dev Console][dev-console]:
+
+```squirrel
+// Pretty print town's attributes, 1 is a shorthand for {depth = 1}
+std.debug(town, 1)
+
+// Put everything about perks from Skarbrand bro
+std.debug(getBro("Skarbrand"), "Perk")
+```
 
 #### `pp(data, options = {})`
 
 Formats data into a pretty printed string, i.e. with text wrapped and indented properly. Works on arbitrary nested structures. Has "named params" in a form of `options` table keys:
 
-`depth` - maximum depth to print, defaults to 3,
-`prefix` - prepend each line with this, defaults to an empty string,
-`width` - assume this screen width in characters, defaults to 100,
-`funcs` - how to show functions in tables, defaults to "count", and might be set to:
-    "full" - prints "name = (function : 0x...)" for each function
-    "count" - print a total number of functions for table
-    false - skip functions
+- `depth` - maximum depth to print, defaults to 3,
+- `filter` - only show keys containing this string and their values,
+- `prefix` - prepend each line with this, defaults to an empty string,
+- `width` - assume this screen width in characters, defaults to 100,
+- `funcs` - how to show functions in tables, defaults to "count", and might be set to:
+    - "full" - prints "name = (function : 0x...)" for each function
+    - "count" - print a total number of functions for table
+    - false - skip functions
 
 Note that HTML ignores whitespace by default so `::logInfo(Debug.pp(data))` will not show up pretty when you open log.html in your browser, see `Debug.log()` and `::std.debug()` above.
 
@@ -477,6 +499,8 @@ cls.onDeserialize = function(_out) {
 
 ```
 
+See more on serialization a [special piece on it](docs/savegames.md).
+
 
 # Feedback
 
@@ -503,7 +527,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
 - [Text Formatting](#text-formatting)
     - [`positive(value)`, `negative(value)`, `damage(value)`](#positivevalue-negativevalue-damagevalue)
     - [`colored(value, color)`](#coloredvalue-color)
-    - [`plural(num)`](#pluralnum)
+    - [`plural(num, [singular, plural])`](#pluralnum-singular-plural)
 - [Random Generator Helpers](#random-generator-helpers)
     - [`float([a, b])`](#floata-b)
     - [`chance(prob)`](#chanceprob)
@@ -523,6 +547,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`values(table)`](#valuestable)
     - [`extend(dst, src)`](#extenddst-src)
     - [`merge(table1, table2)`](#mergetable1-table2)
+    - [`deepExtend(dst, src)`](#deepextenddst-src)
 - [Debug Helpers](#debug-helpers)
     - [`log(name, value, options = {})`](#logname-value-options--)
     - [`::std.debug(data, options = {})`](#stddebugdata-options--)
