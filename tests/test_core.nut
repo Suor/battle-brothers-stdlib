@@ -70,6 +70,15 @@ local t = {}
 assertEq(Table.merge(t, {a = 1}), {a = 1})
 assertEq(t, {})
 
+local t = {a = 7, z = "hi"}
+assertEq(Table.deepExtend(t, {a = [1], b = {c = 42}}), {a = [1], b = {c = 42}, z = "hi"})
+assertEq(t, {a = [1], b = {c = 42}, z = "hi"})
+
+// local t = {a = 7, z = "hi"}
+// assertEq(Table.deepMerge(t, {a = [1], b = {c = 42}}), {a = [1], b = {c = 42}, z = "hi"})
+// assertEq(t, {a = 7, z = "hi"})
+
+
 // Rand
 local Rand = std.Rand.using(::rng_new(1));  // set generator with a fixed seed
 assertEq(Rand.index(10), 5);
