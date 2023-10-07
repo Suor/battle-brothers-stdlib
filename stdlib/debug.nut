@@ -11,29 +11,35 @@ local function indent(level, s) {
 
 local Debug;
 Debug = ::std.Debug <- {
-    DEFAULTS = {prefix = "", width = 100, depth = 3, funcs = "count"}
+    DEFAULTS = {prefix = "", width = 100, depth = 3, funcs = "count", filter = null}
 
     // Pretty print a data structure. Options:
     //     width   max line width in chars
     //     depth   max depth to show
     //     funcs   how functions should be shown ("count" | "full" | false)
+    //     filter  only show keys containing this string
     // See option defaults above.
-    function pp(data, options = {}, level = 0) {
-        local function ppCont(items, level, start, end) {
-            if (joinLength(items, 2) <= options.width - level * 4 - 2) {
+    function pp(data, _opts = {}, _level = 0, _prepend = "") {
+        if (_level == 0) _opts = this._interpret(_opts)
+
+        local startln = (_level == 0 ? _opts.prefix + _prepend : "");
+        local endln = (_level == 0 ? "\n" : "");
+
+        local function ppCont(items, _level, start, end) {
+            if (joinLength(items, 2)
+                    <= _opts.width - _level * 4 - 2 - _prepend.len() - startln.len()) {
                 return start + Str.join(", ", items) + end;
             } else {
                 local lines = [start];
-                lines.extend(items.map(@(item) indent(level + 1, item)));
-                lines.push(indent(level, end));
+                lines.extend(items.map(@(item) indent(_level + 1, item)));
+                lines.push(indent(_level, end));
                 return Str.join("\n", lines);
             }
         }
-
-        if (level == 0) options = Util.merge(Debug.DEFAULTS, options);
-        if (level >= options.depth) return "" + data;  // More robust than .tostring()
-
-        local endln = (level == 0 ? "\n" : "");
+        local function isEmpty(v, vpp) {
+            return (typeof v != "table" || vpp == "{}" || vpp == "{...}")
+                && (typeof v != "array" || vpp == "[]" || vpp == "[...]")
+        }
 
         if (typeof data == "instance") {
             try {
@@ -44,44 +50,72 @@ Debug = ::std.Debug <- {
         }
 
         if (typeof data == "table") {
-            if ("pp" in data) return data.pp;
+            if (_opts.filter && _level >= _opts.depth) return data.len() > 0 ? "{...}" : "{}";
+            if ("pp" in data) return startln + data.pp + endln;
+            if (_level >= _opts.depth) return startln + data + endln;
 
-            local items = [], funcs = 0;
+            local items = [], funcs = 0, skipped = 0;
             foreach (k, v in data) {
                 if (typeof v == "function") {
                     funcs += 1;
-                    if (options.funcs != "full") continue;
+                    if (_opts.funcs != "full") continue;
                 }
-                items.push(k + " = " + Debug.pp(v, options, level + 1))
+                local vpp;
+                if (_opts.filter && (k + "").find(_opts.filter) != null) {
+                    vpp = Debug.pp(v, Util.merge(_opts, {filter = null}), _level + 1, k + " = ")
+                } else {
+                    vpp = Debug.pp(v, _opts, _level + 1, k + " = ");
+                }
+                if (_opts.filter && isEmpty(v, vpp) && (k + "").find(_opts.filter) == null) {
+                    skipped++; continue;
+                };
+                items.push(k + " = " + vpp)
             }
-            if (options.funcs == "count" && funcs) items.push("(" + funcs + " functions)");
-            return ppCont(items, level, "{", "}") + endln;
+            items.sort();
+            if (skipped) items.push("...");
+            if (_opts.funcs == "count" && funcs) items.push("(" + funcs + " functions)");
+            return startln + ppCont(items, _level, "{", "}") + endln;
         } else if (typeof data == "array") {
-            local items = data.map(@(item) Debug.pp(item, options, level + 1));
-            return ppCont(items, level, "[", "]") + endln;
+            if (_opts.filter && _level >= _opts.depth - 1) return data.len() > 0 ? "[...]" : "[]";
+            if (_level >= _opts.depth) return startln + data + endln;
+
+            local items = [], skipped = 0;
+            foreach (v in data) {
+                local vpp = Debug.pp(v, _opts, _level + 1);
+                if (_opts.filter && isEmpty(v, vpp)) {skipped++; continue;};
+                items.push(vpp)
+            }
+            if (skipped) items.push("...");
+            return startln + ppCont(items, _level, "[", "]") + endln;
         } else if (data == null) {
             return "null" + endln;
         } else if (typeof data == "string") {
-            return "\"" + Str.replace(data, "\"", "\\\"") + "\"" + endln;
+            return startln + "\"" + Str.replace(data, "\"", "\\\"") + "\"" + endln;
         } else {
-            return "" + data + endln;
+            return startln + data + endln;
         }
     }
 
-    function log(name, data, options = {}) {
-        this.logInfo("<pre>" + this.DEFAULTS.prefix + name + " = " + Debug.pp(data, options) + "</pre>");
+    function _interpret(_opts) {
+        if (typeof _opts == "integer") _opts = {depth = _opts};
+        if (typeof _opts == "string") _opts = {filter = _opts};
+        return Util.merge(this.DEFAULTS, _opts);
+    }
+
+    function log(name, data, _opts = {}) {
+        ::logInfo("<pre>" + this.pp(data, _opts, 0, name + " = ") + "</pre>");
     }
 
     // Create a new Debug with changed default options:
     //     local Debug = ::std.Debug.with({prefix: "my-module: ", width: 120});
     //     Debug.log("enemy", enemy);
-    function with(options) {
-        return Util.merge(this, {DEFAULTS = Util.merge(this.DEFAULTS, options)})
+    function with(_opts) {
+        return Util.merge(this, {DEFAULTS = Util.merge(this.DEFAULTS, _opts)})
     }
 }
 
 // TODO: sort indexes
 // TODO: add filter
-::std.debug <- function(data, options = {}) {
-    this.logInfo("<pre>" + Debug.pp(data, options) + "</pre>")
+::std.debug <- function(data, _opts = {}) {
+    this.logInfo("<pre>" + Debug.pp(data, _opts) + "</pre>")
 }
