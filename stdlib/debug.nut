@@ -26,8 +26,8 @@ Debug = ::std.Debug <- {
         local endln = (_level == 0 ? "\n" : "");
 
         local function ppCont(items, _level, start, end) {
-            if (joinLength(items, 2)
-                    <= _opts.width - _level * 4 - 2 - _prepend.len() - startln.len()) {
+            if (joinLength(items, 2) + _level * 4 + start.len() + end.len() + startln.len()
+                    <= _opts.width) {
                 return start + Str.join(", ", items) + end;
             } else {
                 local lines = [start];
@@ -41,11 +41,19 @@ Debug = ::std.Debug <- {
                 && (typeof v != "array" || vpp == "[]" || vpp == "[...]")
         }
 
+        local cls = null;
         if (typeof data == "instance") {
-            try {
-                data = data.getdelegate();
-            } catch (exception) {
-                // do nothing
+            if (data instanceof ::WeakTableRef) data = data.get()
+            else {
+                // Turn instance into table if possible
+                try {
+                    cls = data.getclass();
+                    local contents = {};
+                    foreach (k, _ in cls) contents[k] <- data[k];
+                    data = contents;
+                } catch (exception) {
+                    // do nothing
+                }
             }
         }
 
@@ -73,8 +81,9 @@ Debug = ::std.Debug <- {
             }
             items.sort();
             if (skipped) items.push("...");
-            if (_opts.funcs == "count" && funcs) items.push("(" + funcs + " functions)");
-            return startln + ppCont(items, _level, "{", "}") + endln;
+            if (_opts.funcs == "count" && funcs)
+                items.push("(" + funcs + " function" + (funcs > 1 ? "s" : "") + ")");
+            return startln + ppCont(items, _level, cls ? "instance {" : "{", "}") + endln;
         } else if (typeof data == "array") {
             if (_opts.filter && _level >= _opts.depth - 1) return data.len() > 0 ? "[...]" : "[]";
             if (_level >= _opts.depth) return startln + data + endln;
