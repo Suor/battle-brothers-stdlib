@@ -104,7 +104,7 @@ local Iter = ::std.Iter <- {
     function using(gen) {
         return Util.merge(this, {
             function int(a, b) {
-                return a >= 0 ? gen.next(a, b) : a + gen.next(0, b - a)
+                return gen.next(a.tointeger(), b.tointeger())
             }
         })
     }

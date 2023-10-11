@@ -78,7 +78,6 @@ assertEq(t, {a = [1], b = {c = 42}, z = "hi"})
 // assertEq(Table.deepMerge(t, {a = [1], b = {c = 42}}), {a = [1], b = {c = 42}, z = "hi"})
 // assertEq(t, {a = 7, z = "hi"})
 
-
 // Rand
 local Rand = std.Rand.using(::rng_new(1));  // set generator with a fixed seed
 assertEq(Rand.index(10), 5);
@@ -90,6 +89,7 @@ assertEq(Rand.choices(3, ["a" "b" "c"], [3 2 1]), ["c" "a" "a"]);
 assertEq(Rand.take(3, ["a" "b" "c" "d" "e"]), ["c" "a" "e"]);
 assertEq(Rand.take(3, ["a" "b" "c" "d" "e"], [1 2 3 0 0]), ["a" "c" "b"]);
 assertEq(Rand.take(3, ["a" "b"], [0 1]), ["b" "a"]); // Check Iter.take() stops
+assertEq(Rand.int(0, 100.5), 57) // Proper float handling
 
 // Util
 assertEq(Util.clamp(7, 1, 10), 7);
