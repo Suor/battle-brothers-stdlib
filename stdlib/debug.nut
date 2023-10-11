@@ -111,8 +111,15 @@ Debug = ::std.Debug <- {
         return Util.merge(this.DEFAULTS, _opts);
     }
 
-    function log(name, data, _opts = {}) {
-        ::logInfo("<pre>" + this.pp(data, _opts, 0, name + " = ") + "</pre>");
+    function log(name, ...) {
+        // data, _opts
+        if (vargv.len() == 0) {
+            ::logInfo(this.DEFAULTS.prefix + name);
+            return;
+        }
+        local data = vargv[0];
+        local opts = vargv.len() >= 2 ? vargv[1] : {};
+        ::logInfo("<pre>" + this.pp(data, opts, 0, name + " = ") + "</pre>");
     }
 
     // Create a new Debug with changed default options:

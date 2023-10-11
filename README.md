@@ -415,9 +415,9 @@ About this particular example, see more in [`Util.pack()`](#packdata) and in a s
 
 ## Debug Helpers
 
-#### `log(name, value, options = {})`
+#### `log(name, [value, options = {}])`
 
-Log a passed value under a given name. If value is table or array then pretty print it. See `pp()` below for details and options.
+Log a passed value under a given name. If value is table or array then pretty print it. See [`Debug.pp()`](#ppdata-options--) below for details and options.
 
 ```squirrel
 Debug.log("bro", this, {depth = 2});
@@ -432,7 +432,12 @@ Debug.log("bro", this, {depth = 2});
 //         ...
 //     }
 // }
+
+// Simply put out message with a proper prefix
+Debug.log(message);
 ```
+
+See also [`Debug.with()`](#withoptions)
 
 #### `::std.debug(data, options = {})`
 
@@ -442,8 +447,11 @@ A quick way to pretty print data to a log. Same as above, but doesn't have name 
 // Pretty print town's attributes, 1 is a shorthand for {depth = 1}
 std.debug(town, 1)
 
-// Put everything about perks from Skarbrand bro
+// Show everything about perks in Skarbrand bro
 std.debug(getBro("Skarbrand"), "Perk")
+
+// Same but look deeper
+std.debug(getBro("Skarbrand"), {filter = "Perk", depth = 7})
 ```
 
 #### `pp(data, options = {})`
@@ -581,7 +589,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`merge(table1, table2)`](#mergetable1-table2)
     - [`deepExtend(dst, src)`](#deepextenddst-src)
 - [Debug Helpers](#debug-helpers)
-    - [`log(name, value, options = {})`](#logname-value-options--)
+    - [`log(name, [value, options = {}])`](#logname-value-options--)
     - [`::std.debug(data, options = {})`](#stddebugdata-options--)
     - [`pp(data, options = {})`](#ppdata-options--)
     - [`with(options)`](#withoptions)

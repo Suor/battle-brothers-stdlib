@@ -97,5 +97,10 @@ assertEq(Util.clamp(-1, 1, 10), 1);
 assertEq(Util.clamp(10.1, 1, 10), 10);
 assertEq(Util.clamp(0.099, 0.1, 0.2), 0.1);
 
+// Debug
+Debug.log("message")
+Debug.log("name", {a = 1})
+Debug.log("name", {a = 1}, {depth = 7})
+
 // Done
 print("Core OK\n")
