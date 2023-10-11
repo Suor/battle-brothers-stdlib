@@ -89,6 +89,7 @@ assertEq(Rand.choices(3, ["a" "b" "c"]), ["b" "b" "a"]);
 assertEq(Rand.choices(3, ["a" "b" "c"], [3 2 1]), ["c" "a" "a"]);
 assertEq(Rand.take(3, ["a" "b" "c" "d" "e"]), ["c" "a" "e"]);
 assertEq(Rand.take(3, ["a" "b" "c" "d" "e"], [1 2 3 0 0]), ["a" "c" "b"]);
+assertEq(Rand.take(3, ["a" "b"], [0 1]), ["b" "a"]); // Check Iter.take() stops
 
 // Util
 assertEq(Util.clamp(7, 1, 10), 7);
