@@ -81,6 +81,13 @@ Is compatible with everything. Does not modify the game only provides useful uti
 
 Additionally, stdlib is guaranteed to be backwards compatible, i.e. it is always safe to upgrade it to a newer version. This covers all the functions and their params documented here, any pieces not metioned in this README should not be used. Also, the specific output of functions intended to be read by humans - several debug utils - are not covered by these guarantees.
 
+stdlib does not depend on anything, however if [modhooks][] are present then it will register itself, so you can declare a dependency like:
+```squirrel
+::mods_queue(mod.ID, "stdlib(>=1.7)", function () {
+    // ... queued code goes here ...
+})
+```
+
 
 # API
 
@@ -561,4 +568,5 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
 <!-- /MarkdownTOC -->
 
 [nexus-mods]: https://www.nexusmods.com/battlebrothers/mods/676
+[modhooks]: https://www.nexusmods.com/battlebrothers/mods/42
 [dev-console]: https://www.nexusmods.com/battlebrothers/mods/380
