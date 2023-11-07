@@ -6,9 +6,9 @@ SHELL := /bin/bash
 
 .ONESHELL:
 test:
-	squirrel tests/test.nut
+	@squirrel tests/test.nut
 
-zip: check-compile
+zip: check-compile test
 	@LAST_TAG=$$(git tag | tail -1);
 	MODIFIED=$$( git diff $$LAST_TAG --quiet $(SOURCES) || echo _MODIFIED);
 	FILENAME=$(MOD_NAME)$$([[ "$$LAST_TAG" != "" ]] && echo _$$LAST_TAG || echo "")$${MODIFIED}.zip;
@@ -17,7 +17,7 @@ zip: check-compile
 clean:
 	@rm -f *_MODIFIED.zip;
 
-install: check-compile
+install: check-compile test
 	@set -e;
 	FILENAME=$(DATA_DIR)$(MOD_NAME)_TMP.zip;
 	zip --filesync -r "$${FILENAME}" $(SOURCES);
