@@ -4,19 +4,25 @@ DATA_DIR = ~/.local/share/Steam/steamapps/common/Battle\ Brothers/data/
 
 SHELL := /bin/bash
 
+.ONESHELL:
 test:
 	squirrel tests/test.nut
 
-zip:
-	LAST_TAG=$$(git tag | tail -1); \
-	MODIFIED=$$( git diff $$LAST_TAG --quiet $(SOURCES) || echo _MODIFIED); \
-	FILENAME=$(MOD_NAME)$$([[ "$$LAST_TAG" != "" ]] && echo _$$LAST_TAG || echo "")$${MODIFIED}.zip; \
-	rm $${FILENAME}; \
-	zip -r $${FILENAME} $(SOURCES)
+zip: check-compile
+	@LAST_TAG=$$(git tag | tail -1);
+	MODIFIED=$$( git diff $$LAST_TAG --quiet $(SOURCES) || echo _MODIFIED);
+	FILENAME=$(MOD_NAME)$$([[ "$$LAST_TAG" != "" ]] && echo _$$LAST_TAG || echo "")$${MODIFIED}.zip;
+	zip --filesync -r "$${FILENAME}" $(SOURCES);
 
-install:
-	FILENAME=$(MOD_NAME)_TMP.zip; \
-	rm $${FILENAME}; \
-	zip -r $${FILENAME} $(SOURCES); \
-	cp $${FILENAME} $(DATA_DIR)$${FILENAME}; \
-	rm $${FILENAME}
+clean:
+	@rm -f *_MODIFIED.zip;
+
+install: check-compile
+	@set -e;
+	FILENAME=$(DATA_DIR)$(MOD_NAME)_TMP.zip;
+	zip --filesync -r "$${FILENAME}" $(SOURCES);
+
+check-compile:
+	@set -e
+	find . -name \*.nut -print0 | xargs -0 -n1 squirrel -c && echo "Syntax OK"
+	rm out.cnut

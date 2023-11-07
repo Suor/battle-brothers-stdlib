@@ -43,13 +43,15 @@ Debug = ::std.Debug <- {
 
         local cls = null;
         if (typeof data == "instance") {
-            if (data instanceof ::WeakTableRef) data = data.get()
-            else {
+            cls = "instance";
+            if (data instanceof ::WeakTableRef) {
+                cls = "weakref";
+                data = data.get();
+            } else {
                 // Turn instance into table if possible
                 try {
-                    cls = data.getclass();
                     local contents = {};
-                    foreach (k, _ in cls) contents[k] <- data[k];
+                    foreach (k, _ in data.getclass()) contents[k] <- data[k];
                     data = contents;
                 } catch (exception) {
                     // do nothing
@@ -83,7 +85,7 @@ Debug = ::std.Debug <- {
             if (skipped) items.push("...");
             if (_opts.funcs == "count" && funcs)
                 items.push("(" + funcs + " function" + (funcs > 1 ? "s" : "") + ")");
-            return startln + ppCont(items, _level, cls ? "instance {" : "{", "}") + endln;
+            return startln + ppCont(items, _level, cls ? cls + " {" : "{", "}") + endln;
         } else if (typeof data == "array") {
             if (_opts.filter && _level >= _opts.depth - 1) return data.len() > 0 ? "[...]" : "[]";
             if (_level >= _opts.depth) return startln + data + endln;
