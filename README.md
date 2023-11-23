@@ -473,25 +473,26 @@ Note that HTML ignores whitespace by default so `::logInfo(Debug.pp(data))` will
 
 Set up a `Debug` copy with desired defaults:
 ```squirrel
-// Set up a Debug copy with desired defaults
-local Debug = ::std.Debug.with({prefix = "mymod: ", width: 80});
+// Set up a local ref
+local Debug = ::std.Debug.with({prefix = "mymod: ", width = 80, depth = 2});
 
 // Use it as usual
 Debug.log("params", params);
-Debug.log("bro", this, {depth = 2}); // Can overwrite new defaults the same
-Debug.log("bro", this, 2);           // Same via a shortcut
+Debug.log("bro", this, {depth = 1}); // Can overwrite the new defaults same way
+Debug.log("bro", this, 1);           // Same via a shortcut
 
 // Debug.pp() is also affected
 ::logWarning("Failed to find a value " + value + " in " + Debug.pp(arr));
 
-::MyMod <- {
+// Set it up for a mod
+::CoolMod <- {
     Name = ...
     ...
-    Debug = ::std.Debug.with({prefix = "mymod", ...})
+    Debug = ::std.Debug.with({prefix = "cool: ", ...})
 }
 
 // Use it anywhere in your mod
-::MyMod.Debug.log("talents", this.m.Talents);
+::CoolMod.Debug.log("talents", this.m.Talents);
 ```
 
 
