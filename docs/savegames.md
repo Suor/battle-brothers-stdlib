@@ -264,8 +264,11 @@ If you break your format several times then you can just keep adding these `if (
 
 I was focusing all examples on adding data to player, but you can attach to anything else having flags or use global ones, i.e. `World.Flags` exactly the same way.
 
+
 <!-- ## Limitations -->
 <!-- ... -->
+
+<!-- **P.S.** note about Text.plural() ? -->
 
 
 [modhooks]: https://www.nexusmods.com/battlebrothers/mods/42
