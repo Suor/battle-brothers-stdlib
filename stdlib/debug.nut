@@ -83,7 +83,7 @@ Debug = ::std.Debug <- {
             }
             items.sort();
             if (skipped) items.push("...");
-            if (_opts.funcs == "count" && funcs)
+            if (_opts.funcs == "count" && funcs && !_opts.filter)
                 items.push("(" + funcs + " function" + (funcs > 1 ? "s" : "") + ")");
             return startln + ppCont(items, _level, cls ? cls + " {" : "{", "}") + endln;
         } else if (typeof data == "array") {
