@@ -14,6 +14,10 @@
     }
 }
 
+::Log <- {full = [], last = null}
 ::logInfo <- function(s) {
-    print(s + "\n")
+    // ::Log.full.push(s);
+    ::Log.last = s;
 }
+
+class WeakTableRef {}

@@ -99,8 +99,11 @@ assertEq(Util.clamp(0.099, 0.1, 0.2), 0.1);
 
 // Debug
 Debug.log("message")
+assertEq(Log.last, "message")
 Debug.log("name", {a = 1})
+assertEq(Log.last, "<pre>name = {a = 1}\n</pre>")
 Debug.log("name", {a = 1}, {depth = 7})
+assertEq(Log.last, "<pre>name = {a = 1}\n</pre>")
 
 // Done
 print("Core OK\n")
