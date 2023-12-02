@@ -29,4 +29,12 @@
         foreach (x in arr) total += x;
         return total;
     }
+
+    function findBy(arr, pred) {
+        foreach (i, item in arr) {
+            if (pred(item)) return i;
+        }
+    }
+    // function zip(a1, a2) {
+    // }
 }
