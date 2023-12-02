@@ -17,6 +17,11 @@ Table.extend(Util, {
         return value >= max ? max : value <= min ? min : value;
     }
 
+    function getMember(table, key) {
+        while (!(key in table) && "SuperName" in table) table = table[table.SuperName];
+        return key in table ? table[key] : null;
+    }
+
     function deepEq(a, b) {
         if (a == b) return true;
         if (typeof a != typeof b) return false;
