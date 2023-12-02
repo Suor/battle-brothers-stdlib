@@ -244,10 +244,11 @@ format("Will heal in %i day%s", days, Text.plural(days))
 
 ## Random Generator Helpers
 
-<!-- #### `int(a, b)`
+#### `int(a, b)`
 
-Returns an integer from `a` to `b`, including these two numbers. Same as `Math.rand()` but see [`using()`](#using) below.
- -->
+Returns an integer from `a` to `b`, including these two numbers. Same as `::Math.rand()` but see [`using()`](#usinggen) below.
+
+
 #### `float([a, b])`
 
 Returns a float number `x`, which satisfies `a <= x < b`. If used without params assumes `a = 0, b = 1`.
@@ -317,7 +318,17 @@ local num = Rand.poly(::World.getPlayerRoster().getAll().len(), 0.2);
 ::World.Assets.addMedicine(-3 * num);
 ```
 
-<!-- #### `using(gen)` -->
+#### `using(gen)`
+
+Create a new Rand with a replaced backend:
+```squirrel
+local Rand = ::std.Rand.using(::rng);
+local Rand = ::std.Rand.using(::rng_new(seed));
+... use it as usual ...
+```
+
+`::rng` and `::rng_new` are part of [Adam's hooks][modhooks]. The reason to use something else behind the scenes but `::Math.rand()`, is to not interfere with other random things happening, i.e. to not skew random seeds during party generation. Note that as long as you use `::Math.rand()` or stdlib's `Rand` functions without `using()` the results will be reproducible with save/load, if you don't want your random behavior follow that then this will be another reason to use a separate random generator.
+
 
 ## Array
 
@@ -570,12 +581,14 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`colored(value, color)`](#coloredvalue-color)
     - [`plural(num, [singular, plural])`](#pluralnum-singular-plural)
 - [Random Generator Helpers](#random-generator-helpers)
+    - [`int(a, b)`](#inta-b)
     - [`float([a, b])`](#floata-b)
     - [`chance(prob)`](#chanceprob)
     - [`choice(options, weights = null)`](#choiceoptions-weights--null)
     - [`choices(num, options, weights = null)`](#choicesnum-options-weights--null)
     - [`take(num, options, weights = null)`](#takenum-options-weights--null)
     - [`poly(tries, prob)`](#polytries-prob)
+    - [`using(gen)`](#usinggen)
 - [Array](#array)
     - [`concat(...arrays)`](#concatarrays)
     - [`all(arr, func)`](#allarr-func)
