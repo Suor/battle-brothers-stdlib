@@ -1,3 +1,14 @@
+1.7
+- made Debug.pp() and friends work with instances and weakrefs
+- documented Rand.int() and Rand.using()
+- documented Debug.with()
+- added a single param Debug.log()
+- fixed Rand.int() passed with floats when using ::rng
+- fixed filter not collapsing tables with funcs count
+Experimental - not yet documented:
+- added Array.findBy()
+- added Util.getMember()
+
 1.6
 - added Util.pack() and .unpack()
 - added Table.deepExtend()
