@@ -17,7 +17,7 @@ local Iter = ::std.Iter <- {
 
 ::std.Rand <- {
     function int(a, b) {
-        return ::Math.rand(a ,b);
+        return ::Math.rand(a, b);
     }
     function float(a = null, b = null) {
         local r = this.int(0, 2147483647) / 2147483648.0;
