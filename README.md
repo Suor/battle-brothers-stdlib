@@ -79,7 +79,7 @@ For a full list of things see below or jump to [Index](#index).
 
 Is compatible with everything. Does not modify the game only provides useful utilities. Is safe to add and remove at any time.
 
-Additionally, stdlib is guaranteed to be backwards compatible, i.e. it is always safe to upgrade it to a newer version. This covers all the functions and their params documented here, any pieces not metioned in this README should not be used. Also, the specific output of functions intended to be read by humans - several debug utils - are not covered by these guarantees.
+Additionally, stdlib is guaranteed to be backwards compatible, i.e. it is always safe to upgrade it to a newer version. This covers all the functions and their params documented here, any pieces not metioned in this README may disappear or change. Also, the specific output of functions intended to be read by humans - several debug utils - are not covered by these guarantees.
 
 stdlib does not depend on anything, however if [modhooks][] are present then it will register itself, so you can declare a dependency like:
 ```squirrel
