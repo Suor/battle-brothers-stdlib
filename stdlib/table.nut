@@ -36,6 +36,12 @@
     //     return this.deepExtend(this.deepExtend({}, t1), t2);
     // }
 
+    function setDefaults(dst, defaults) {
+        foreach (key, value in defaults) {
+            if (!(key in dst)) dst[key] <- value
+        }
+    }
+
     // TODO:
     //    apply()
     //    map()
