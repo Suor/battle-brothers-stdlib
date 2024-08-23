@@ -16,6 +16,7 @@ if ("mods_registerMod" in getroottable()) ::mods_registerMod("stdlib", version);
 ::include("stdlib/re");
 ::include("stdlib/rand");
 ::include("stdlib/debug");
+::include("stdlib/player");
 ::include("stdlib/packer");
 ::include("stdlib/util");
 

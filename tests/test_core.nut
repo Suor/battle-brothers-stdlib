@@ -79,7 +79,7 @@ assertEq(t, {a = [1], b = {c = 42}, z = "hi"})
 // assertEq(t, {a = 7, z = "hi"})
 
 // Rand
-local Rand = std.Rand.using(::rng_new(1));  // set generator with a fixed seed
+local Rand = std.Rand.using(::std.rng_new(1));  // set generator with a fixed seed
 assertEq(Rand.index(10), 5);
 assertEq(Rand.index(3, [4 2 1]), 1);
 assertEq(Rand.choice(["a" "b" "c"]), "a");
