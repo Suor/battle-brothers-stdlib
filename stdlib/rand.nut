@@ -158,10 +158,11 @@ if ("rng_new" in getroottable()) {
     //     local Rand = ::std.Rand.using(::rng_new(seed));
     //     ... use it as usual ...
     function using(gen) {
-        return Util.merge(this, {
-            function int(a, b) {
-                return gen.next(a.tointeger(), b.tointeger())
-            }
-        })
+        // NOTE: do not use Util.merge() here to make Rand.using() available early, i.e. for Player
+        local new = clone this;
+        new.int = function (a, b) {
+            return gen.next(a.tointeger(), b.tointeger())
+        }
+        return new;
     }
 }
