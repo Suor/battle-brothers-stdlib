@@ -27,8 +27,8 @@ Text = ::std.Text <- {
     function positive(value) {return Text.colored(value, ::Const.UI.Color.PositiveValue)}
     function negative(value) {return Text.colored(value, ::Const.UI.Color.NegativeValue)}
     function damage(value) {return Text.colored(value, ::Const.UI.Color.DamageValue)}
-    // function ally(value) {return Text.colored(value, "#1e468f")}
-    // function enemy(value) {return Text.colored(value, "#8f1e1e")}
+    function ally(value) {return Text.colored(value, "#1e468f")}
+    function enemy(value) {return Text.colored(value, "#8f1e1e")}
 
     // function signed(value) {
     //     return (value > 0 ? "+" : "") + value;

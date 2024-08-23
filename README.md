@@ -200,9 +200,9 @@ Re.replace(desc, "(\d+)( bonus|fatigue)", function (num, what) {
 
 ## Text Formatting
 
-#### `positive(value)`, `negative(value)`, `damage(value)`
+#### `positive(value)`, `negative(value)`, `damage(value)`, `ally(value)`, `enemy(value)`
 
-Wraps a given value into BBCode signifying something positive, negative or damage, i.e. green, red or red font color. Accepts any value, usually a string or a number:
+Wraps a given value into BBCode signifying something positive, negative or whatever, i.e. green, red or another font color used by game in this context. Accepts any value, usually a string or a number:
 ```squirrel
 // Basic usage
 tooltip.push({..., text = Text.negative("Out of ammo")})
@@ -577,7 +577,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`all(str, re)`](#allstr-re)
     - [`replace(str, re, repl)`](#replacestr-re-repl)
 - [Text Formatting](#text-formatting)
-    - [`positive(value)`, `negative(value)`, `damage(value)`](#positivevalue-negativevalue-damagevalue)
+    - [`positive(value)`, `negative(value)`, `damage(value)`, `ally(value)`, `enemy(value)`](#positivevalue-negativevalue-damagevalue-allyvalue-enemyvalue)
     - [`colored(value, color)`](#coloredvalue-color)
     - [`plural(num, [singular, plural])`](#pluralnum-singular-plural)
 - [Random Generator Helpers](#random-generator-helpers)
