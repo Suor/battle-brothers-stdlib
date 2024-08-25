@@ -10,8 +10,8 @@ Table.extend(Util, {
     sum = Array.sum
 
     // Shortcuts
-    pack = Packer.pack
-    unpack = Packer.unpack
+    pack = Packer.pack.bindenv(Packer)
+    unpack = Packer.unpack.bindenv(Packer)
 
     function clamp(value, min, max) {
         return value >= max ? max : value <= min ? min : value;
