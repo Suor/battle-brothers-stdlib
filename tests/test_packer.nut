@@ -9,7 +9,7 @@ local function assertPack(data, packed = null, older = null) {
 }
 
 // Primitives
-assertPack(null, "_");
+assertPack(null, "~", "@>1_");
 assertPack(true, "+");
 assertPack(false, "-");
 
@@ -34,13 +34,26 @@ assertPack("0123456789abcdefghiklmnopqurstuvqxyz0123456789abcdefghiklmnopqurstuv
 
 // Arrays
 assertPack([], "[0", "@>1[,0");
-assertPack(array(10), "[:__________", "@>1[,:__________");
+// Use ; here to check conflict with v1 integer op code
+assertPack(array(11), "[;~~~~~~~~~~~", "@>1[,;___________");
 
 assertPack(array(80, false),
         "[#280--------------------------------------------------------------------------------",
      "@>1[;280--------------------------------------------------------------------------------");
-assertPack([null true false], "[3_+-", "@>1[,3_+-");
-assertPack([1 2 3], "[3,1,2,3", "@>1[,3,1,2,3");
+assertPack([null true false], "[3~+-", "@>1[,3_+-");
+
+// Vectors of cint
+assertPack([1 2 3], "],3123", "@>1[,3,1,2,3");
+assertPack([1 null 3], "],31~3", "@>1[,3,1_,3");
+assertPack([null null 3], "[3~~,3", "@>1[,3__,3"); // bail out: no gain
+assertPack([0, 47], "],20_", "@>1[,2,0,_");        // check null op not confusing with cint 47
+assertPack([3 100], "[2,3#3100");                  // bail out: out of cint
+
+// Vectors of ref
+assertPack([["a" "b"], ["b" "a" "b"]], "[2[2'1a'1b]<3010");
+assertPack([["a" "b"], ["b" "a" null]], "[2[2'1a'1b]<301~");
+assertPack([["a" "b"], ["b" "a" "c"]], "[2[2'1a'1b[3<0<1'1c"); // bail out: no ref
+assertPack([["a" "b"], ["b" "a" {}]], "[2[2'1a'1b[3<0<1{0");   // bail out: wrong type
 
 // Tables
 assertPack({}, "{0", "@>1{,0");
@@ -57,9 +70,9 @@ assertPack(t, "{1.30.5,E", "@>1{,1.30.5,E");
 
 // Nested
 assertPack({x = {a = true}}, "{1'1x{1'1a+", "@>1{,1'1x{,1'1a+")
-assertPack({x = [3 7]}, "{1'1x[2,3,7", "@>1{,1'1x[,2,3,7")
+assertPack({x = [3 7]}, "{1'1x],237", "@>1{,1'1x[,2,3,7")
 assertPack([{a = 7, b = null}, {a = "hi", c = false}],
-       "[2{2'1a,7'1b_{2<1'2hi'1c-",
+       "[2{2'1a,7'1b~{2<1'2hi'1c-",
     "@>1[,2{,2'1a,7'1b_{,2<1'2hi'1c-")
 
 // Cache

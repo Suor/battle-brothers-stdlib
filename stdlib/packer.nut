@@ -12,18 +12,25 @@ Packer = ::std.Packer <- {
     lchar = '!' - '0' // -16, lowest value for a "char integer"
     hchar = 'z' - '0' //  74, highest value for a "char integer"
     op = {
-        "null": '_'
+        "null": '~'  // Use char outside of cint range to work with vectors and structs
         "true": '+'
         "false": '-'
         cint = ','
-        integer = '#'
+        integer = '#' // Use negative cint so that it could not be confused with array/table len
         float = '.'
         sstring = "'"[0]
         lstring = '"'
+        // TODO: op code for empty string? to not use ref for it, save 1 char.
+        //       Downside is complicating vector packing code.
         array = '['
+        vector = ']'  // typed array, nulls allowed
         table = '{'
+        struct = '}'  // table with fixed keys and types
         ref = '<'
-        // unused special chars: `~!@#$%^&*()=}:>?]|\/
+        alter = '|'
+        // Out of cint:   {|}     unused: <space>
+        // Negative cint: "#'+,-. unused: !$%&()*/
+        // Positive cint  <[]     unused: _:;<=?@\^`
     }
 
     function pack(_data) {
@@ -63,12 +70,49 @@ Packer = ::std.Packer <- {
                 return ops.lstring + _pack(n, _ctx) + _val;
             case "array":
                 local n = _val.len();
-                local text = ops.array + (n <= hchar ? i2c(n) : _pack(n, _ctx));
-                foreach (x in _val) text += _pack(x, _ctx);
-                return text;
+                if (n == 0) return ops.array + i2c(0);
+
+                // How many bytes we can save by using vector: only say op once instead of n times
+                local vectorGain = n - 1;
+                local vop = op["null"], vtext = "", i = 0;
+                local xp, xop;
+                foreach (x in _val) {
+                    xp = _pack(x, _ctx);
+                    xop = xp[0];
+                    if (x == null) {
+                        vectorGain--;
+                        if (vectorGain <= 0) break;
+                        vtext += xp; // Will conflict with lower if op.null is in the cint range
+                    }
+                    // Only do vectors with cint and refs with possible nulls for now.
+                    // Reasons are - make it simple, usually not worth it for longer values.
+                    else if (xop != op.cint && xop != op.ref) break;
+                    else if (vop == op["null"]) vop = xop;
+                    else if (xop != vop) break;
+
+                    // Since these are cint and refs only xp = op + 1 cint char
+                    vtext += xp.slice(1);
+                    i++;
+                }
+                if (i == n) return ops.vector + vop.tochar() + _packlen(n, _ctx) + vtext;
+
+                // We partially packed this as vector, but decided to bail out,
+                // need to convert text to whatever array would look.
+                // Thankfully we packed each x but last to exactly 1 char.
+                local text = "";
+                foreach (c in vtext) {
+                    text += c == op["null"] ? ops["null"] : vop.tochar() + c.tochar();
+                }
+                // NOTE: it's important that we don't pack x again, because doing so to a string
+                //       can make it a ref to itself. Same for collections containing strings.
+                text += xp; i++;
+
+                // Pack the rest in array way
+                for (; i < n; i++) text += _pack(_val[i], _ctx);
+                return ops.array + _packlen(n, _ctx) + text;
             case "table":
                 local n = _val.len();
-                local text = ops.table + (n <= hchar ? i2c(n) : _pack(n, _ctx));
+                local text = ops.table + _packlen(n, _ctx);
                 foreach (k, v in _val) text += _pack(k, _ctx) + _pack(v, _ctx);
                 return text;
             default:
@@ -76,8 +120,8 @@ Packer = ::std.Packer <- {
         }
     }
 
-    function _unpack(_in) {
-        local code = _in.char();
+    function _unpack(_in, _code = null) {
+        local code = _code || _in.char();
         switch (code) {
             case op["null"]:
                 return null;
@@ -98,14 +142,21 @@ Packer = ::std.Packer <- {
                 _in.cache.add(str);
                 return str;
             case op.array:
-                local c = _in.char();
-                local n = '0' <= c && c <= hchar ? c2i(c) : (_in.back(), _unpack(_in));
+                local n = _unpacklen(_in);
                 local arr = array(n);
                 for (local i = 0; i < n; i++) arr[i] = _unpack(_in);
                 return arr;
+            case op.vector:
+                local vop = _in.char();
+                local n = _unpacklen(_in);
+                local arr = array(n);
+                for (local i = 0; i < n; i++) {
+                    local c = _in.char();
+                    arr[i] = c == op["null"] ? null : (_in.back(), _unpack(_in, vop));
+                }
+                return arr;
             case op.table:
-                local c = _in.char();
-                local n = '0' <= c && c <= hchar ? c2i(c) : (_in.back(), _unpack(_in));
+                local n = _unpacklen(_in);
                 local t = {};
                 for (local i = 0; i < n; i++) t[_unpack(_in)] <- _unpack(_in);
                 return t;
@@ -114,6 +165,14 @@ Packer = ::std.Packer <- {
             default:
                 throw format("Unknown op code '%s' (%i)", code.tochar(), code);
         }
+    }
+
+    function _packlen(n, _ctx) {
+        return n <= hchar ? i2c(n) : _pack(n, _ctx)
+    }
+    function _unpacklen(_in) {
+        local c = _in.char();
+        return '0' <= c && c <= hchar ? c2i(c) : _unpack(_in, c);
     }
 
     function _stream(_text, _pos = 0) {
@@ -125,10 +184,6 @@ Packer = ::std.Packer <- {
                 local char = _text[_pos];
                 _pos++;
                 return char;
-            }
-            function peek() {
-                if (_pos >= tlen) throw "Unexpected end of packed string";
-                return _text[_pos];
             }
             function back() {
                 _pos--;
@@ -275,4 +330,3 @@ foreach (k, v in Packer.op) Packer.ops[k] <- v.tochar();
 
 ::std.Packer1.ops <- {};
 foreach (k, v in ::std.Packer1.op) ::std.Packer1.ops[k] <- v.tochar();
-
