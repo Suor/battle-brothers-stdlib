@@ -110,52 +110,16 @@
                 local n = _val.len();
                 if (n == 0) return ops.array + i2c(0);
 
-                // How many bytes we can save by using vector: only say op once instead of n times
-                local vectorGain = n - 1;
-                local vop = op["null"], vtext = "", i = 0;
-                local xp, xop;
-                foreach (x in _val) {
-                    xp = _pack(x, _ctx);
-                    xop = xp[0];
-                    if (x == null) {
-                        vectorGain--;
-                        if (vectorGain <= 0) break;
-                        vtext += xp; // Will conflict with lower if op.null is in the cint range
-                    }
-                    // Only do vectors with cint and refs with possible nulls for now.
-                    // Reasons are - make it simple, usually not worth it for longer values.
-                    else if (xop != op.cint && xop != op.ref) break;
-                    else if (vop == op["null"]) vop = xop;
-                    else if (xop != vop) break;
-
-                    // Since these are cint and refs only xp = op + 1 cint char
-                    vtext += xp.slice(1);
-                    i++;
-                }
-                // NOTE: putting n before vop makes vector interoperable in structs with many things
-                if (i == n) return ops.vector + _packlen(n, _ctx) + vop.tochar() + vtext;
-
-                // We partially packed this as vector, but decided to bail out,
-                // need to convert text to whatever array would look.
-                // Thankfully we packed each x but last to exactly 1 char.
-                local text = "";
-                foreach (c in vtext) {
-                    text += c == op["null"] ? ops["null"] : vop.tochar() + c.tochar();
-                }
-                // NOTE: it's important that we don't pack x again, because doing so to a string
-                //       can make it a ref to itself. Same for collections containing strings.
-                text += xp; i++;
-
-                // Pack the rest in array way
-                for (; i < n; i++) text += _pack(_val[i], _ctx);
-                return ops.array + _packlen(n, _ctx) + text;
+                local itemsp = array(n);
+                foreach (i, x in _val) itemsp[i] = _pack(x, _ctx);
+                return _packVector(itemsp, _ctx) || _packArray(itemsp, _ctx);
             case "table":
                 local n = _val.len();
                 if (n == 0 || n > maxStructLen) return _packTable(_val, _ctx);
 
                 // Try struct
                 local cacheKey = Struct.keyFor(_val);
-                if (!cacheKey) return _packTable(_val, _ctx);
+                if (cacheKey == null) return _packTable(_val, _ctx);
 
                 local ref = _ctx.structs.ref(cacheKey);
                 if (ref != null) {
@@ -171,21 +135,21 @@
                         local vp = _pack(v, _ctx);
                         local vop = vp[0];
 
-                        if (svop in singletons) {
+                        if (v == null) text += vp;
+                        else if (svop in singletons) {
                             text += vp;
-                            if (v != null) struct.ops[i] = vop; // set op
+                            struct.ops[i] = vop; // set op
                         }
-                        // else if (svop in bools && vop in bools) text += vp;
                         else if (svop == vop) text += vp.slice(1); // all but nulls and bools
                         else {
                             text += vop in implicit[svop] ? vp : ops.alter + vp;
-                            if (v != null) struct.ops[i] = vop; // change op
+                            struct.ops[i] = vop; // change op
                         }
                     }
                     return text;
                 }
 
-                // Record a new struct
+                // Pack a table, record a new struct
                 local text = ops.table + _packlen(n, _ctx);
                 local struct = Struct.new();
                 foreach (k, v in _val) {
@@ -200,6 +164,37 @@
         }
     }
 
+    function _packVector(_itemsp, _ctx) {
+        local n = _itemsp.len();
+        // How many bytes we can save by using vector: only say op once instead of n times
+        local gain = n - 1;
+        local vop = op["null"], vtext = "", i = 0;
+        local xp, xop;
+        foreach (xp in _itemsp) {
+            xop = xp[0];
+            if (xop == op["null"]) {
+                gain--;
+                if (gain <= 0) return;
+                vtext += xp;
+            }
+            // Only do vectors with cint and refs with possible nulls for now.
+            // Reasons are - make it simple, usually not worth it for longer values.
+            else if (xop != op.cint && xop != op.ref) return;
+            else if (vop == op["null"]) vop = xop;
+            else if (xop != vop) return;
+
+            // Since these are cint and refs only xp = op + 1 cint char
+            vtext += xp.slice(1);
+        }
+        // NOTE: putting n before vop makes vector interoperable in structs with many things
+        return ops.vector + _packlen(n, _ctx) + vop.tochar() + vtext;
+    }
+    function _packArray(_itemsp, _ctx) {
+        local n = _itemsp.len();
+        local text = ops.array + _packlen(n, _ctx);
+        foreach (xp in _itemsp) text += xp;
+        return text;
+    }
     function _packTable(_val, _ctx) {
         local text = ops.table + _packlen(_val.len(), _ctx);
         foreach (k, v in _val) text += _pack(k, _ctx) + _pack(v, _ctx);
@@ -250,28 +245,25 @@
                     if (struct && type(key) == "string") struct.add(key, vop); else struct = null;
                     t[key] <- _unpack(_in, vop);
                 }
-                if (struct) {
-                    local cacheKey = Struct.keyFor(t);
-                    _in.structs.add(cacheKey, struct);
-                }
+                if (struct) _in.structs.add(Struct.keyFor(t), struct);
                 return t;
             case op.struct:
-                local c = _in.char();
-                local struct = _in.structs.get(c2i(c));
+                local struct = _in.structs.get(c2i(_in.char()));
                 local t = {};
                 foreach (i, k in struct.keys) {
                     local svop = struct.ops[i], vop = _in.char();
-                    if (svop in singletons) {
+                    if (vop == op["null"]) t[k] <- null;
+                    else if (svop in singletons) {
                         t[k] <- _unpack(_in, vop);
-                        if (vop != op["null"]) struct.ops[i] = vop; // set op
+                        struct.ops[i] = vop; // set op
                     }
                     else if (vop == op.alter || vop in implicit[svop]) {
                         if (vop == op.alter) vop = _in.char();
                         t[k] <- _unpack(_in, vop);
-                        if (vop != op["null"]) struct.ops[i] = vop; // change op
+                        struct.ops[i] = vop; // change op
                     }
-                    // vop == svop, skipped in pack, so here vop is first char of packed text
                     else {
+                        // vop == svop, skipped in pack, so here vop is first char of packed text
                         _in.back();
                         t[k] <- _unpack(_in, svop);
                     }

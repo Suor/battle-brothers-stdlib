@@ -67,6 +67,7 @@ assertPack([["a" "b"], ["b" "a" {}]], "[2[2'1a'1b[3*0*1{0");   // bail out: wron
 assertPack({}, "{0", "@>1{,0");
 assertPack({x = true}, "{1'1x+", "@>1{,1'1x+");
 assertPack({a = 1, b = 2, c = 3}, null, "@>1{,3'1a,1'1b,2'1c,3");  // Order is not defined
+assertPack({a = "a"}, "{1'1a*0")
 
 // Non-string keys
 local t = {}; t[true] <- "x";
