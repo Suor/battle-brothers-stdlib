@@ -527,6 +527,33 @@ Debug.log("bro", this, 1);           // Same via a shortcut
 ::CoolMod.Debug.log("talents", this.m.Talents);
 ```
 
+#### `noop()`
+
+A way to make a dummy Debug object, usable to switch off and on debugging in your mod.
+
+```squirrel
+// Set it up the mod, same as above
+::CoolMod <- {
+    ...
+    Debug = ::std.Debug.with({prefix = "cool: ", ...})
+}
+// Use everywhere as
+::CoolMod.Debug.log(...)
+
+// Prepare to release, don't need debug outputs anymore, but don't want to remove/comment out them,
+// so we change a single line like here:
+::CoolMod <- {
+    ...
+    Debug = ::std.Debug.with({prefix = "cool: ", ...}).noop()
+}
+
+// Ready to debug again:
+::CoolMod <- {
+    ...
+    Debug = ::std.Debug.with({prefix = "cool: ", ...})//.noop()
+}
+```
+
 
 ## Other Utils
 
@@ -628,6 +655,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`::std.debug(data, options = {})`](#stddebugdata-options--)
     - [`pp(data, options = {})`](#ppdata-options--)
     - [`with(options)`](#withoptions)
+    - [`noop()`](#noop)
 - [Other Utils](#other-utils)
     - [`clamp(value, min, max)`](#clampvalue-min-max)
     - [`deepEq(a, b)`](#deepeqa-b)
