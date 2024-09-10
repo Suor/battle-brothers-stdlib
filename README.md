@@ -74,6 +74,8 @@ tooltip[i].text = Re.replace(tooltip[i].text,
 
 For a full list of things see below or jump to [Index](#index).
 
+See also [Serialization for Humans](docs/savegames.md).
+
 
 # Compatibility
 
