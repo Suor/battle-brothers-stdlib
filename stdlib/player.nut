@@ -3,6 +3,16 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
 ::std.Player <- {
     Debug = false
 
+    function giveLevels(_player, _num) {
+        for (local i = 0; i < _num; i++) {
+            local nextlevelXP = _player.getXPForNextLevel() - _player.m.XP;
+            _player.m.XP += nextlevelXP;
+            _player.m.CombatStats.XPGained += nextlevelXP;
+            _player.updateLevel();
+        }
+        if (_num > 0) _player.getSkills().update();
+    }
+
     // Attributes
     // Average values taken from character_background.buildAttributes(),
     // will use them to determine how much a change from onChangeAttributes() means.
