@@ -48,7 +48,7 @@ foreach (item in items) {
 
 // Log that, accepts arbitrary nested data structure
 Debug.log("loot for wolf", items);
-// Will log "mymod: loot for wolf = [werewolf_pelt_item adrenaline_gland_item]"
+// Will log mymod: loot for wolf = ["werewolf_pelt_item" "adrenaline_gland_item"]
 
 // Roll weighted talent stars
 foreach (i in Rand.take(3, [0 1 2 3 4 5 6 7], weights)) {
