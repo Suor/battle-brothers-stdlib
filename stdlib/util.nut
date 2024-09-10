@@ -17,9 +17,22 @@ Table.extend(Util, {
         return value >= max ? max : value <= min ? min : value;
     }
 
-    function getMember(table, key) {
-        while (!(key in table) && "SuperName" in table) table = table[table.SuperName];
-        return key in table ? table[key] : null;
+    function getMember(_obj, _key) {
+        // Make it strict for now: throw when unsure, might make it more permissive later
+        if (typeof _obj == "instance") {
+            if (_obj instanceof ::WeakTableRef) {
+                if (_obj.isNull()) throw "Can't call getMember() on a null WeakTableRef";
+                _obj = _obj.get();
+            } else {
+                throw "Can't call getMember() on a non-WeakTableRef instance";
+            }
+        }
+        while (_obj != null) {
+            if (_key in _obj) return _obj[_key];
+            // If we do it in hooks, i.e. ::mods_hookExactClass() delegates might not be set yet
+            _obj = "SuperName" in _obj ? _obj[_obj.SuperName] : _obj.getdelegate();
+        }
+        return null;
     }
 
     function deepEq(a, b) {
