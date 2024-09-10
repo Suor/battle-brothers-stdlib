@@ -601,6 +601,20 @@ cls.onDeserialize = function(_out) {
 
 See more on serialization a [special piece on it](docs/savegames.md).
 
+#### `getMember(obj, key)`
+
+Gets key for a BB class instance, handling superclasses, delegates and weakrefs.
+
+```squirrel
+::mods_hookExactClass("items/weapons/named/named_goblin_heavy_bow", function (cls) {
+    local randomizeValues = Util.getMember(cls, "randomizeValues");
+    cls.randomizeValues <- function () {
+        randomizeValues();
+        this.m.FatigueOnSkillUse -= 3; // Make goblin named bows easier to use
+    }
+})
+```
+
 
 # Feedback
 
@@ -661,6 +675,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`deepEq(a, b)`](#deepeqa-b)
     - [`pack(data)`](#packdata)
     - [`unpack(data)`](#unpackdata)
+    - [`getMember(obj, key)`](#getmemberobj-key)
 
 <!-- /MarkdownTOC -->
 
