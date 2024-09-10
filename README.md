@@ -431,7 +431,11 @@ About this particular example, see more in [`Util.pack()`](#packdata) and in a s
 Log a passed value under a given name. If value is table or array then pretty print it. See [`Debug.pp()`](#ppdata-options--) below for details and options.
 
 ```squirrel
-Debug.log("bro", this, {depth = 2});
+// Simply put out message with a proper prefix
+Debug.log(message);
+
+// Print out internals of _player with pretty indentation
+Debug.log("bro", _player, {depth = 2});
 // Will look like:
 // bro = {
 //     Level = 5
@@ -444,8 +448,23 @@ Debug.log("bro", this, {depth = 2});
 //     }
 // }
 
-// Simply put out message with a proper prefix
-Debug.log(message);
+// Same as above (a shorthand)
+Debug.log("bro", _player, 2);
+
+// Only show keys that contain "Level"
+Debug.log("bro", _player, "Level");
+// bro = {m = {Level = 13, LevelUps = 0, LevelUpsSpent = 13, ...}, ...}
+
+// Same but go deeper
+Debug.log("bro", _player, {filter = "Level", depth = 4});
+// bro = {
+//     human = {
+//         actor = {m = {LevelActionPointCost = 1, LevelFatigueCost = 4, MaxTraversibleLevels = 1, ...}, ...}
+//         ...
+//     }
+//     m = {Level = 13, LevelUps = 0, LevelUpsSpent = 13, ...}
+//     ...
+// }
 ```
 
 See also [`Debug.with()`](#withoptions)
