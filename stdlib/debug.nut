@@ -130,6 +130,15 @@ Debug = ::std.Debug <- {
     function with(_opts) {
         return Util.merge(this, {DEFAULTS = Util.merge(this.DEFAULTS, _opts)})
     }
+
+    enabled = true
+    function noop() {
+        return {
+            enabled = false
+            function pp(data, _opts = {}, _level = 0, _prepend = "") {}
+            function log(name, ...) {}
+        }
+    }
 }
 
 // TODO: sort indexes

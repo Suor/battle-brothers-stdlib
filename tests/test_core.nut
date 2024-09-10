@@ -97,6 +97,8 @@ assertEq(Util.clamp(-1, 1, 10), 1);
 assertEq(Util.clamp(10.1, 1, 10), 10);
 assertEq(Util.clamp(0.099, 0.1, 0.2), 0.1);
 
+// TODO: getMember()? isKindOf()?
+
 // Debug
 Debug.log("message")
 assertEq(Log.last, "message")
@@ -104,6 +106,13 @@ Debug.log("name", {a = 1})
 assertEq(Log.last, "<pre>name = {a = 1}\n</pre>")
 Debug.log("name", {a = 1}, {depth = 7})
 assertEq(Log.last, "<pre>name = {a = 1}\n</pre>")
+assertEq(Debug.enabled, true);
+
+Log.last = null;
+Debug.noop().log("name", {a = 1});
+assertEq(Log.last, null);
+assertEq(Debug.noop().enabled, false);
+
 
 // Done
 print("Core OK\n")
