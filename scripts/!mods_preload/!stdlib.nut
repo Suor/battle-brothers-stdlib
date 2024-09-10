@@ -1,6 +1,6 @@
 // Alias things to make it easier for us inside. These are still global and accessible from outside
 // Ensure only the latest version goes as ::std
-local version = 1.7;
+local version = 2.0;
 if ("std" in getroottable() && ::std.version >= version) return;
 
 // Util is forward declared, so that others might use it, even things added later with extend.

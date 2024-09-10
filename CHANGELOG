@@ -1,3 +1,20 @@
+2.0
+- added Player:
+    - giveLevels()
+    - rerollTalents(), clearTalents(), addTalents()
+    - addTraits()
+- optimized Packer, esp. for "typed" arrays and tables
+- added Table.setDefaults()
+- added Text.ally(), Text.enemy()
+- added Debug.noop() and .enabled
+- added ::std.rng and ::std.rng_new()
+- improve Util.getMember() to handle weakrefs and stuff, make in public
+- made Rand.using() available early, i.e. before Util is ready
+- added load script
+Experimental - not yet documented:
+- added Util.isKindOf()
+- added Array.findBy()
+
 1.7
 - made Debug.pp() and friends work with instances and weakrefs
 - documented Rand.int() and Rand.using()
@@ -6,7 +23,6 @@
 - fixed Rand.int() passed with floats when using ::rng
 - fixed filter not collapsing tables with funcs count
 Experimental - not yet documented:
-- added Array.findBy()
 - added Util.getMember()
 
 1.6
