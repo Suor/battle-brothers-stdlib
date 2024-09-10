@@ -269,7 +269,7 @@ if (armor.getArmorMax() >= 95 && Rand.chance(0.333)) {
 
 #### `choice(options, weights = null)`
 
-Randomly chooses on of the given options, if weights are passed then each option will be chosen with a probability proportional to its weight:
+Randomly chooses one of the given options, if weights are passed then each option will be chosen with a probability proportional to its weight:
 ```squirrel
 // Play a random sound
 local sound = Rand.choice(["curse_01.wav" "curse_02.wav"]);
@@ -310,7 +310,7 @@ foreach (trait in Rand.take(2, ::Const.CharacterTraits)) {
 
 #### `poly(tries, prob)`
 
-Returns a number of successful rolls of total `tries` ones, each having a given probability of success. This always returns an integer number from 0 to `tries` with an average value of `tries * prob`.
+Returns a number of successes from `tries` rolls, each having the given probability of success. This always returns an integer number from 0 to `tries` with an average value of `tries * prob`.
 ```squirrel
 // Flip a coin 10 times
 local count = Rand.poly(10, 0.5);
