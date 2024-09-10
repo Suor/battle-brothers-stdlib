@@ -13,6 +13,7 @@ Or just a thing to take the place of lacking Squirrel/Battle Brothers standard l
     - [Random Generator Helpers](#random-generator-helpers)
     - [Array](#array)
     - [Table](#table)
+    - [Player](#player)
     - [Debug Helpers](#debug-helpers)
     - [Other Utils](#other-utils)
 - [Feedback](#feedback)
@@ -55,6 +56,12 @@ foreach (i in Rand.take(3, [0 1 2 3 4 5 6 7], weights)) {
     local w = weights[i];
     _player.m.Talents[i] = Rand.choice([1 2 3], [60 30*w 10*w]);
 }
+
+// Add one more talent, but not in attributes excluded by background
+Player.addTalents(_player, 1, {excluded = "strict"})
+
+// Up 3 levels
+Player.giveLevels(_player, 3);
 
 // Various str utils
 local short = Str.cutprefix(name, "Ancient ");
@@ -437,6 +444,48 @@ Table.deepExtend(this.m.data, Util.unpack(::World.Flags.get("mymod")));
 About this particular example, see more in [`Util.pack()`](#packdata) and in a special [piece on serialization](docs/savegames.md).
 
 
+## Player
+
+#### `giveLevels(player, num)`
+
+Give `num` levels to `player`. This adds XP and advances everything necessary.
+
+#### `rerollTalents(player, num, opts = null)`
+
+Rerolls talents, a.k.a. stars, for `player`. Clearing them and then adding them in `num` attributes. Available `opts` are:
+
+- `weighted` - better chances to get talent in attributes favored by background. Plus higher chance to get 2 or 3 stars in those attributes too. The attributes not favored by background get talents rarer and have lower chances for more stars. Defaults to `false`.
+- `excluded` - how to treat background exclusions:
+    + "strict" - never get excluded talents,
+    + "relaxed" - get any other first, then may get excluded (default),
+    + "ignored" - completely ignore the excluded list.
+
+```squirrel
+// Set 2 to 4 weighted talents for a player
+Player.rerollTalents(_player, 2 + Rand.poly(2, 0.5), {weighted = true})
+```
+
+#### `clearTalents(player)`
+
+Remove all talents from `player`.
+
+#### `addTalents(player, num, opts = null)`
+
+Add `num` talents on top of whatever `player` already has. Won't give more stars in existing talents. `opts` work the same way as in [`Player.rerollTalents()`](#rerolltalentsplayer-num-opts--null).
+
+#### `addTraits(player, num, opts = null)`
+
+Give `num` random traits to `player`. Doesn't consult player's background or other traits' exclusions. `opts` are:
+
+- `good` - add good traits, defaults to `true`
+- `bad` - add bad traits, defaults to `true`
+- `soso` - add so-so traits, defaults to `true`
+
+```squirrel
+// Add a couple of good or bad traits
+Player.addTraits(_player, 2, {soso = false})
+```
+
 ## Debug Helpers
 
 #### `log(name, [value, options = {}])`
@@ -676,6 +725,12 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`merge(table1, table2)`](#mergetable1-table2)
     - [`setDefaults(dst, defaults)`](#setdefaultsdst-defaults)
     - [`deepExtend(dst, src)`](#deepextenddst-src)
+- [Player](#player)
+    - [`giveLevels(player, num)`](#givelevelsplayer-num)
+    - [`rerollTalents(player, num, opts = null)`](#rerolltalentsplayer-num-opts--null)
+    - [`clearTalents(player)`](#cleartalentsplayer)
+    - [`addTalents(player, num, opts = null)`](#addtalentsplayer-num-opts--null)
+    - [`addTraits(player, num, opts = null)`](#addtraitsplayer-num-opts--null)
 - [Debug Helpers](#debug-helpers)
     - [`log(name, [value, options = {}])`](#logname-value-options--)
     - [`::std.debug(data, options = {})`](#stddebugdata-options--)
