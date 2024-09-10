@@ -415,6 +415,17 @@ function log(message, options = {}) {
 }
 ```
 
+#### `setDefaults(dst, defaults)`
+
+Fills in absent keys in `dst` with `defaults`. Useful to modify stuff inplace:
+```squirrel
+foreach (info in mod.PartyInfo) {
+    Table.setDefaults(info, {Battles = 0, Kills = 0, Dead = false});
+}
+```
+
+The only difference from `.extend()` is that missing keys are not overwritten here.
+
 #### `deepExtend(dst, src)`
 
 Same as `Table.extend()` but does it recursively, i.e. if `dst[key]` and `src[key]` are both tables then does this extension for those too. Might be used to fill in an empty struct with data:
@@ -663,6 +674,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`values(table)`](#valuestable)
     - [`extend(dst, src)`](#extenddst-src)
     - [`merge(table1, table2)`](#mergetable1-table2)
+    - [`setDefaults(dst, defaults)`](#setdefaultsdst-defaults)
     - [`deepExtend(dst, src)`](#deepextenddst-src)
 - [Debug Helpers](#debug-helpers)
     - [`log(name, [value, options = {}])`](#logname-value-options--)
