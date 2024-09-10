@@ -17,6 +17,15 @@ Table.extend(Util, {
         return value >= max ? max : value <= min ? min : value;
     }
 
+    function isKindOf(_object, _className) {
+        if (_object == null || _className == null) return false;
+        if (typeof _object == "instance" && _object instanceof ::WeakTableRef) {
+            if (_object.isNull()) return false;
+            _object = _object.get();
+        }
+        return ::isKindOf(_object, _className);
+    }
+
     function getMember(_obj, _key) {
         // Make it strict for now: throw when unsure, might make it more permissive later
         if (typeof _obj == "instance") {
