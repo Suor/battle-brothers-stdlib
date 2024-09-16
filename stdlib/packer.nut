@@ -3,6 +3,7 @@
 // Can only pack primitive values, arrays and tables. Borks on functions, classes, instances, etc.
 //
 // Implements some optimizations:
+//     - a compact form for small integers
 //     - repeated strings won't be repeated verbatim if they close enough,
 //     - tables with same set of fields will be encoded to not repeat keys and value types,
 //     - arrays with small integers or refs won't repeat type op code.
@@ -58,8 +59,8 @@
         //     - null with everything
         //     - cint, integer, float
         //     - sstring, lstring, ref
-        // This leads to several requirements
-        //     - alter opcode being out of cint to anything be puttable after cint value
+        // This leads to several requirements:
+        //     - alter opcode needs to be out of cint for anything be puttable after cint value
         //     - integer opcode being out of cint to save on alter op code when mixing these two.
         //       I moved it to negative cint before, now I moved lchar from ! to $. This shortened
         //       negative cint range but alowed this optimization.
@@ -385,9 +386,6 @@
         local N = 64, pos = -1, full = false;
         local keys = array(N), values = _values ? array(N) : null, key2idx = {};
         return {
-            _key2idx_ = key2idx
-            _keys_ = keys
-            _values_ = values
             function add(_key, _val = null) {
                 if (_key in key2idx) return;
 
