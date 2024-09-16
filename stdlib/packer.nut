@@ -113,7 +113,8 @@
     function unpack(_text) {
         // Should start with magic + version
         local ml = magic.len();
-        if (_text.len() < ml + 1 || _text.slice(0, ml) != magic || _text[ml] > hcint)
+        if (_text.len() < ml + 1 || _text.slice(0, ml) != magic
+                || _text[ml] < '0' || _text[ml] > hchar)
             throw "Broken pack string";
 
         local v = c2i(_text[ml]);
