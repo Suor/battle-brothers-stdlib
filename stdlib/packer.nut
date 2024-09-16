@@ -29,11 +29,50 @@
         vector = ']'  // typed array, nulls allowed
         table = '{'
         struct = '}'  // table with fixed keys and types
-        ref = '*'
+        ref = '*'  // Use negative cint to be implicitly compatible with sstring and lstring
         alter = '|'
-        // Out of cint:   "#{|}   unused: ! and <space>
+        // Out of cint:   ~"#{|}  unused: ! and <space>
         // Negative cint: +-,.'*  unused: $%&()/
         // Positive cint  []      unused: _:;<=?@\^`
+        //
+        // In v1 opcodes only shared space with other opcodes, so they just needed to be unique,
+        // I chose all of them to be special chars for easier "human parsing" of packed strings.
+        // Here opcodes sometimes share position with a first byte of enconding of some data type,
+        // this enforces certain limitation on which symbols can be used as opcodes.
+        //
+        // Case 1: array and table lens.
+        // These are packed as this in v2:
+        //     len <= 74 (hcint): op.array + cint (len) + data
+        //         longer arrays: op.array + op.integer + cint (len of len) len.tostring() + data
+        // This demands op.integer to be either out of cint or in negative cint space, to be not
+        // confused with cint len, which may go from '0' to 'z' (hchar). So I moved op.integer to #
+        //
+        // Case 2: vectors.
+        // Vector is an array for which we do not repeat opcode for each element, however, we still
+        // want to allow nulls there as this seems somewhat probable. This means null opcode should
+        // be outside cint if we want to put nulls in cint vector. This is why I changed null to ~.
+        //
+        // Case 3: structs.
+        // Structs save on keys - even if it's only 2 bytes for ref - but also on opcodes same as
+        // vectors. However, we want to allow some type intermixture especially:
+        //     - null with everything
+        //     - cint, integer, float
+        //     - sstring, lstring, ref
+        // This leads to several requirements
+        //     - alter opcode being out of cint to anything be puttable after cint value
+        //     - integer opcode being out of cint to save on alter op code when mixing these two.
+        //       I moved it to negative cint before, now I moved lchar from ! to $. This shortened
+        //       negative cint range but alowed this optimization.
+        //     - since sstring, lstring and ref put positive cint after opcode their opcodes should
+        //       be at least negative cint. So i moved ref opcode to *. Strictly speaking lstring
+        //       may also have integer opcode after its own not positive cint, this is fine too.
+        // Should note that not having really fixed types for struct keys allows us to reuse the
+        // same struct record in cache, making it more efficient.
+        //
+        // This makes ascii printable chars in negative cint and especially outisde cint a scarce
+        // resource :) Some things might be moved, i.e. table and struct opcodes do not need to be
+        // out of cint at all, and lstring may move to negative cint. However, these have a nice
+        // ideomatic correspondense, which I don't want to break.
     }
     function _init() {
         ops <- {};
@@ -47,6 +86,8 @@
 
         singletons <- cset(op["null"], op["true"], op["false"]);
 
+        // B in implicit[A] means B opcode cannot be confused with the first byte after A opcode.
+        //
         // These sets could be widened to have less alter ops, but it will be possible to add this
         // later in a backward compatible manner - extra | doesn't stop unpacking. We, however, only
         // add things we think common enough to care about:
@@ -115,6 +156,7 @@
                 return _packVector(itemsp, _ctx) || _packArray(itemsp, _ctx);
             case "table":
                 local n = _val.len();
+                // Tables too big and the ones with non-string keys are unlikely to repeat, skip
                 if (n == 0 || n > maxStructLen) return _packTable(_val, _ctx);
 
                 // Try struct
@@ -136,11 +178,13 @@
                         local vop = vp[0];
 
                         if (v == null) text += vp;
+                        // Singletons go as opcodes, makes them switchable to anything without |
                         else if (svop in singletons) {
                             text += vp;
                             struct.ops[i] = vop; // set op
                         }
-                        else if (svop == vop) text += vp.slice(1); // all but nulls and bools
+                        // This is where we save our byte, for everything same but nulls and bools
+                        else if (svop == vop) text += vp.slice(1);
                         else {
                             text += vop in implicit[svop] ? vp : ops.alter + vp;
                             struct.ops[i] = vop; // change op
@@ -164,6 +208,8 @@
         }
     }
 
+    // Vector = array with same opcode with possible nulls mixed in. This prevents cint/integer and
+    // sstring/lstring/ref mix. May consider switching to running opcode like structs to fix this.
     function _packVector(_itemsp, _ctx) {
         local n = _itemsp.len();
         // How many bytes we can save by using vector: only say op once instead of n times
@@ -173,7 +219,7 @@
         foreach (xp in _itemsp) {
             xop = xp[0];
             if (xop == op["null"]) {
-                gain--;
+                gain--; // null is one byte both in array and vector, so no 1 byte save here
                 if (gain <= 0) return;
                 vtext += xp;
             }
@@ -245,6 +291,7 @@
                     if (struct && type(key) == "string") struct.add(key, vop); else struct = null;
                     t[key] <- _unpack(_in, vop);
                 }
+                // A table might be referenced as a struct later, record it if it fits the criteria
                 if (struct) _in.structs.add(Struct.keyFor(t), struct);
                 return t;
             case op.struct:
@@ -263,7 +310,7 @@
                         struct.ops[i] = vop; // change op
                     }
                     else {
-                        // vop == svop, skipped in pack, so here vop is first char of packed text
+                        // op didn't change, so svop is our opcode, and vop was read from data
                         _in.back();
                         t[k] <- _unpack(_in, svop);
                     }
