@@ -63,6 +63,9 @@ Player.addTalents(_player, 1, {excluded = "strict"})
 // Up 3 levels
 Player.giveLevels(_player, 3);
 
+// Give 2 good traits
+Player.addTraits(_player, 2, {good = true, soso = false, bad = false});
+
 // Various str utils
 local short = Str.cutprefix(name, "Ancient ");
 if (Str.startswith("background.legends_", this.getID())) ...
