@@ -1,16 +1,16 @@
-local Packer = ::std.Packer, Packer1 = ::std.Packer1, Util = ::std.Util;
+local Packer = ::std.Packer, Packer1 = ::std.Packer1, Packer2 = ::std.Packer2, Util = ::std.Util;
 
-local function assertPack(data, packed = null, older = null) {
+local function assertPack(data, packed, ...) {
     local dataPacked = Util.pack(data);
     if (packed) assertEq(dataPacked, Packer.magic + Packer.version + packed);
     local unpacked = Util.unpack(dataPacked);
     assertEq(data, unpacked);
-    if (older) assertEq(data, Util.unpack(older));
+    foreach (older in vargv) assertEq(data, Util.unpack(older));
 
-    local dataP1 = Packer1.pack(data);
-    local unpackedP1 = Packer1.unpack(dataP1);
-    assertEq(data, unpackedP1);
-    if (older) assertEq(data, Packer1.unpack(older));
+    foreach (packer in [Packer2 Packer1]) {
+        local unpackedPrev = packer.unpack(packer.pack(data));
+        assertEq(data, unpackedPrev);
+    }
 }
 
 // Primitives
@@ -21,11 +21,15 @@ assertPack(false, "-");
 // Numbers
 assertPack(7, ",7");
 assertPack(42, ",Z");
-assertPack(99, "#299", "@>1;299");  // Over char integer limit
+assertPack(89, "!/3", "@>2#289", "@>1;289");  // Over char integer limit
 assertPack(-3, ",-");
-assertPack(-20, "#3-20", "@>1;3-20"); // Below char integer limit
-assertPack(-15, "#3-15", "@>1,!");    // v1 lcint
+assertPack(-20, "!p1", "@>2#3-20", "@>1;3-20"); // Below char integer limit
+assertPack(-15, "!u1", "@>2#3-15", "@>1,!");    // v1 lcint
 assertPack(-12, ",$", "@>1,$");       // v2 lcint
+assertPack(6341, "!zz")
+assertPack(6342, "#46342")
+assertPack(-1227, "!$$")
+assertPack(-1228, "#5-1228")
 assertPack(1.1, ".31.1");
 assertPack(-0.0337, ".7-0.0337");
 assertPack(0.000001, ".51e-06");
@@ -36,7 +40,7 @@ assertPack("hello", "'5hello");
 assertPack("'", "'1'");
 // A long string
 local lstr = "_0123456789abcdefghiklmnopqurstuvqxyz0123456789abcdefghiklmnopqurstuvqxyz012345";
-assertPack(lstr, "\"#279" + lstr, "@>1\";279" + lstr);
+assertPack(lstr, "\"!%3" + lstr, "@>2\"#279" + lstr, "@>1\";279" + lstr);
 
 // Arrays
 assertPack([], "[0", "@>1[,0");
@@ -46,7 +50,8 @@ assertPack(array(11), "[;~~~~~~~~~~~", "@>1[,;___________");
 assertPack(array(74, false), // max cint
     "[z--------------------------------------------------------------------------")
 assertPack(array(80, false), // over cint
-        "[#280--------------------------------------------------------------------------------",
+        "[!&3--------------------------------------------------------------------------------",
+     "@>2[#280--------------------------------------------------------------------------------",
      "@>1[;280--------------------------------------------------------------------------------");
 assertPack([null true false], "[3~+-", "@>1[,3_+-");
 
@@ -54,8 +59,8 @@ assertPack([null true false], "[3~+-", "@>1[,3_+-");
 assertPack([1 2 3], "]3,123", "@>1[,3,1,2,3");
 assertPack([1 null 3], "]3,1~3", "@>1[,3,1_,3");
 assertPack([null null 3], "[3~~,3", "@>1[,3__,3"); // bail out: no gain
-assertPack([0 47], "]2,0_", "@>1[,2,0,_");        // check null op not confusing with cint 47
-assertPack([3 100], "[2,3#3100");                  // bail out: out of cint
+assertPack([0 47], "]2,0_", "@>1[,2,0,_");         // check null op not confusing with cint 47
+assertPack([3 100], "[2,3!:3", "@>2[2,3#3100");    // bail out: out of cint
 
 // Vectors of ref
 assertPack([["a" "b"], ["b" "a" "b"]], "[2[2'1a'1b]3*010");
@@ -91,7 +96,7 @@ assertPack([{a = 1}, {a = -2}], "[2{1'1a,1}0.");  // -2 in cint is .
 assertPack([{a = 1}, {a = 0.5}], "[2{1'1a,1}0|.30.5");
 assertPack([{a = 1.0}, {a = 1}], "[2{1'1a.11}0,1");
 assertPack([{a = 1}, {a = ""}], "[2{1'1a,1}0|'0");
-assertPack([{a = 1}, {a = lstr}], "[2{1'1a,1}0|\"#279" + lstr);
+assertPack([{a = 1}, {a = lstr}], "[2{1'1a,1}0|\"!%3" + lstr, "@>2[2{1'1a,1}0|\"#279" + lstr);
 assertPack([{a = 1}, {a = []}], "[2{1'1a,1}0|[0");
 assertPack([{a = 1}, {a = [7 7 7]}], "[2{1'1a,1}0|]3,777");
 assertPack([{a = "hi"}, {a = 1}, {a = "hi"}], "[3{1'1a'2hi}0|,1}0|*0"); // cint -> ref
@@ -101,11 +106,19 @@ assertPack([{a = 1}, {a = {a = 2}}], "[2{1'1a,1}0|}02");  // cint -> struct, als
 // Structs: irregular
 assertPack([{a = 1, b = 2}, {a = 7}, {a = 10, b = -1}], "[3{2'1a,1'1b,2{1*1,7}1:/");
 
+// Structs: medium integers
+assertPack([{a = 1}, {a = 100}, {a = 101}], "[3{1'1a,1}0!:3}0;3", "@>2[3{1'1a,1}0#3100}03101");
+assertPack([{a = 100}, {a = 1}], "[2{1'1a!:3}0,1", "@>2[2{1'1a#3100}0,1");
+assertPack([{a = 100}, {a = "hi"}], "[2{1'1a!:3}0|'2hi", "@>2[2{1'1a#3100}0|'2hi"); // mint -> sstring
+assertPack([{a = 100}, {a = 100.0}], "[2{1'1a!:3}0|.3100", "@>2[2{1'1a#3100}0.3100"); // mint -> float
+
 // Structs: long integers
-assertPack([{a = 1}, {a = 100}, {a = 101}], "[3{1'1a,1}0#3100}03101");
-assertPack([{a = 100}, {a = 1}], "[2{1'1a#3100}0,1");
-assertPack([{a = 100}, {a = "hi"}], "[2{1'1a#3100}0|'2hi");   // integer -> sstring
-assertPack([{a = 100}, {a = 100.0}], "[2{1'1a#3100}0.3100");  // integer -> float
+assertPack([{a = 1}, {a = 9999}, {a = 9991}], "[3{1'1a,1}0#49999}049991");
+assertPack([{a = 9999}, {a = 1}], "[2{1'1a#49999}0,1");
+assertPack([{a = 100}, {a = 9999}], "[2{1'1a!:3}0#49999");
+assertPack([{a = 9999}, {a = 100}], "[2{1'1a#49999}0!:3");
+assertPack([{a = 9999}, {a = "hi"}], "[2{1'1a#49999}0|'2hi");    // integer -> sstring
+assertPack([{a = 9999}, {a = 999.9}], "[2{1'1a#49999}0.5999.9"); // integer -> float
 
 // Structs: bools
 assertPack([{a = false}, {a = true}, {a = false}], "[3{1'1a-}0+}0-");
@@ -115,8 +128,11 @@ assertPack([{a = false}, {a = 5}], "[2{1'1a-}0,5");
 // Structs: strings
 assertPack([{a = "hi"}, {a = "bye"}, {a = "bye"}, {a = "z"}], "[4{1'1a'2hi}03bye}0*0}0'1z");
 assertPack([{a = lstr}, {a = lstr}, {a = lstr + "_"}, {a = "z"}, {a = lstr + "~"}],
-    "[5{1'1a\"#279" + lstr + "}0*0}0\"#280" + lstr + "_}0'1z}0\"#280" + lstr + "~");
-assertPack([{a = lstr}, {a = 100}], "[2{1'1a\"#279" + lstr + "}0|#3100");  // lstring -> integer
+    "[5{1'1a\"!%3" + lstr + "}0*0}0\"!&3" + lstr + "_}0'1z}0\"!&3" + lstr + "~",
+ "@>2[5{1'1a\"#279" + lstr + "}0*0}0\"#280" + lstr + "_}0'1z}0\"#280" + lstr + "~");
+assertPack([{a = lstr}, {a = 100}],
+    "[2{1'1a\"!%3" + lstr + "}0|!:3",
+ "@>2[2{1'1a\"#279" + lstr + "}0|#3100");  // lstring -> integer
 
 // Structs: nested
 assertPack([{a = 1, b = {c = "hi"}}, {a = 5, b = {c = "bye"}}, {a = null, b = {c = "hi"}}],
@@ -155,12 +171,12 @@ assertPack(["value", {key = 7}, {key = "value"}],
 local data = ["start"];
 for (local i = '0'; i <= 'z'; i++) data.push(i.tochar())
 for (local i = '0'; i <= 'z'; i++) data.push("@" + i.tochar())
-assertPack(data)
+assertPack(data, null)
 
 // Broken if we depend on table iteration order
 local broken = "@>2[3{5'8BattleId,1';TargetClass'Bbarbarian_champion':TargetName'@Barbarian Chosen'6Injury'Bdeep_abdominal_cut'3Day,1}038direwolf8Direwolf:broken_leg3}07<caravan_hand<Caravan Hand7cut_arm4";
 local ubroken = Util.unpack(broken);
-assertPack(ubroken);
+assertPack(ubroken, null);
 
 // Done
 print("Packer OK\n")

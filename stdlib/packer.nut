@@ -3,23 +3,27 @@
 // Can only pack primitive values, arrays and tables. Borks on functions, classes, instances, etc.
 //
 // Implements some optimizations:
-//     - a compact form for small integers
+//     - a compact form for small and medium integers
 //     - repeated strings won't be repeated verbatim if they close enough,
 //     - tables with same set of fields will be encoded to not repeat keys and value types,
 //     - arrays with small integers or refs won't repeat type op code.
 ::std.Packer <- {
     magic = "@>" // A signature to separate our strings from random junk
-    version = 2
+    version = 3
     lchar = '$'
     hchar = 'z'
     lcint = '$' - '0' // -12, lowest value for a "char integer"
     hcint = 'z' - '0' //  74, highest value for a "char integer"
+    mintB = 'z' - '$' + 1 // "medium integer" base
+    lmint = -1227  // lowest value for "medium integer", same rate of neg to pos as cint
+    hmint = ('z' - '$' + 1) * ('z' - '$' + 1) - 1 - 1227 // 6341, highest value for "medium integer"
     maxStructLen = 32
     op = {
         "null": '~'  // Use char outside of cint range to work with vectors and structs
         "true": '+'
         "false": '-'
         cint = ','
+        mint = '!'
         integer = '#' // Use negative cint so that it could not be confused with array/table len
         float = '.'
         sstring = "'"[0]
@@ -32,7 +36,7 @@
         struct = '}'  // table with fixed keys and types
         ref = '*'  // Use negative cint to be implicitly compatible with sstring and lstring
         alter = '|'
-        // Out of cint:   ~"#{|}  unused: ! and <space>
+        // Out of cint:   ~"#{|}  unused: <space>
         // Negative cint: +-,.'*  unused: $%&()/
         // Positive cint  []      unused: _:;<=?@\^`
         //
@@ -96,9 +100,10 @@
         //     - cint, integer, float may go together (still need alter to float from cint)
         //     - various strings, including refs should also play nice together
         implicit <- {};
-        implicit[op.cint] <- cset(op.integer); // Can't add float because '.' is in cint
-        implicit[op.integer] <- cset(op.cint op.float);
-        implicit[op.float] <- cset(op.cint op.integer);
+        implicit[op.cint] <- cset(op.mint op.integer); // Can't add float because '.' is in cint
+        implicit[op.mint] <- cset(op.cint op.integer); // Same
+        implicit[op.integer] <- cset(op.cint op.mint op.float);
+        implicit[op.float] <- cset(op.cint op.mint op.integer); // It works the other way around
         implicit[op.sstring] <- cset(op.lstring op.ref);
         implicit[op.lstring] <- cset(op.sstring op.ref);
         implicit[op.ref] <- cset(op.sstring op.lstring);
@@ -116,16 +121,14 @@
         local ml = magic.len();
         if (_text.len() < ml + 1 || _text.slice(0, ml) != magic
                 || _text[ml] < '0' || _text[ml] > hchar)
-            throw "Broken pack string";
+            throw "Broken pack string: magic and version expected";
 
         local v = c2i(_text[ml]);
-        if (v == 1)
-            return ::std.Packer1._unpack(_stream(_text, ml + 1));
-        if (v != version)
+        if (!(v in ::std.Packers))
             throw "Don't know packed version " + v + ", here is " + version + ". Update stdlib?";
 
         local stream = _stream(_text, ml + 1);
-        local data = _unpack(stream);
+        local data = ::std.Packers[v]._unpack(stream);
         if (!stream.eos()) throw "Found some junk in the end of packed string: " + stream.tail(32);
         return data;
     }
@@ -139,6 +142,10 @@
                 return ops[_val.tostring()];
             case "integer":
                 if (lcint <= _val && _val <= hcint) return ops.cint + i2c(_val);
+                if (lmint <= _val && _val <= hmint) {
+                    local u = _val - lmint;
+                    return ops.mint + (u % mintB + lchar).tochar() + (u / mintB + lchar).tochar();
+                }
             case "float":
                 local s = _val.tostring();
                 return ops[typ] + i2c(s.len()) + s;
@@ -260,6 +267,8 @@
                 return false;
             case op.cint:
                 return c2i(_in.char());
+            case op.mint:
+                return (_in.char() - lchar) + (_in.char() - lchar) * mintB + lmint;
             case op.integer:
             case op.float:
                 local n = c2i(_in.char());
@@ -419,6 +428,30 @@
     }
 }
 
+// Keep it for backward compatibilty, esp. testing it
+::std.Packer2 <- {
+    version = 2
+
+    function _pack(_val, _ctx) {
+        local typ = type(_val);
+        switch (typ) {
+            // No mint here
+            case "integer":
+                if (lcint <= _val && _val <= hcint) return ops.cint + i2c(_val);
+                local s = _val.tostring();
+                return ops[typ] + i2c(s.len()) + s;
+            default:
+                return getdelegate()._pack(_val, _ctx);
+        }
+    }
+
+    function _unpack(_in, _code = null) {
+        local code = _code || _in.char();
+        if (code == op.mint) throw format("Unknown op code '%s' (%i)", code.tochar(), code);
+        return getdelegate()._unpack(_in, code);
+    }
+}.setdelegate(::std.Packer);
+
 // Keep it for backward compatibilty, do not mix with the newest version for simplicity and speed.
 ::std.Packer1 <- {
     version = 1
@@ -520,3 +553,5 @@
 
 ::std.Packer1.ops <- {};
 foreach (k, v in ::std.Packer1.op) ::std.Packer1.ops[k] <- v.tochar();
+
+::std.Packers <- {[1] = ::std.Packer1, [2] = ::std.Packer2, [3] = ::std.Packer}
