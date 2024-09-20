@@ -80,14 +80,7 @@
         // ideomatic correspondense, which I don't want to break.
     }
     function _init() {
-        ops <- {};
-        foreach (k, v in op) ops[k] <- v.tochar();
-
-        local function cset(...) {
-            local s = {};
-            foreach (c in vargv) s[c] <- true;
-            return s;
-        }
+        _initOps();
 
         singletons <- cset(op["null"], op["true"], op["false"]);
 
@@ -99,7 +92,19 @@
         //     - nulls should be mixable everywhere
         //     - cint, integer, float may go together (still need alter to float from cint)
         //     - various strings, including refs should also play nice together
+        //     - table with struct, because one turn into other
         implicit <- {};
+        _fillImplicit();
+        foreach (_, c in op) {
+            if (!(c in implicit)) implicit[c] <- {};
+            implicit[c][op["null"]] <- true;
+        }
+    }
+    function _initOps() {
+        ops <- {};
+        foreach (k, v in op) ops[k] <- v.tochar();
+    }
+    function _fillImplicit() {
         implicit[op.cint] <- cset(op.mint op.integer); // Can't add float because '.' is in cint
         implicit[op.mint] <- cset(op.cint op.integer); // Same
         implicit[op.integer] <- cset(op.cint op.mint op.float);
@@ -107,10 +112,13 @@
         implicit[op.sstring] <- cset(op.lstring op.ref);
         implicit[op.lstring] <- cset(op.sstring op.ref);
         implicit[op.ref] <- cset(op.sstring op.lstring);
-        foreach (_, c in op) {
-            if (!(c in implicit)) implicit[c] <- {};
-            implicit[c][op["null"]] <- true;
-        }
+        implicit[op.table] <- cset(op.struct);
+        implicit[op.struct] <- cset(op.table);
+    }
+    function cset(...) {
+        local s = {};
+        foreach (c in vargv) s[c] <- true;
+        return s;
     }
 
     function pack(_data) {
@@ -158,7 +166,8 @@
                 return ops.lstring + _pack(n, _ctx) + _val;
             case "array":
                 local n = _val.len();
-                if (n == 0) return ops.array + i2c(0);
+                // use vector since they are more common, and so can save opcode in other vectors
+                if (n == 0) return ops.vector + i2c(0);
 
                 local itemsp = array(n);
                 foreach (i, x in _val) itemsp[i] = _pack(x, _ctx);
@@ -186,6 +195,7 @@
                         local vp = _pack(v, _ctx);
                         local vop = vp[0];
 
+                        // Note that null does not change saved opcode
                         if (v == null) text += vp;
                         // Singletons go as opcodes, makes them switchable to anything without |
                         else if (svop in singletons) {
@@ -217,33 +227,6 @@
         }
     }
 
-    // Vector = array with same opcode with possible nulls mixed in. This prevents cint/integer and
-    // sstring/lstring/ref mix. May consider switching to running opcode like structs to fix this.
-    function _packVector(_itemsp, _ctx) {
-        local n = _itemsp.len();
-        // How many bytes we can save by using vector: only say op once instead of n times
-        local gain = n - 1;
-        local vop = op["null"], vtext = "", i = 0;
-        local xp, xop;
-        foreach (xp in _itemsp) {
-            xop = xp[0];
-            if (xop == op["null"]) {
-                gain--; // null is one byte both in array and vector, so no 1 byte save here
-                if (gain <= 0) return;
-                vtext += xp;
-            }
-            // Only do vectors with cint and refs with possible nulls for now.
-            // Reasons are - make it simple, usually not worth it for longer values.
-            else if (xop != op.cint && xop != op.ref) return;
-            else if (vop == op["null"]) vop = xop;
-            else if (xop != vop) return;
-
-            // Since these are cint and refs only xp = op + 1 cint char
-            vtext += xp.slice(1);
-        }
-        // NOTE: putting n before vop makes vector interoperable in structs with many things
-        return ops.vector + _packlen(n, _ctx) + vop.tochar() + vtext;
-    }
     function _packArray(_itemsp, _ctx) {
         local n = _itemsp.len();
         local text = ops.array + _packlen(n, _ctx);
@@ -285,14 +268,7 @@
                 for (local i = 0; i < n; i++) arr[i] = _unpack(_in);
                 return arr;
             case op.vector:
-                local n = _unpacklen(_in);
-                local vop = _in.char();
-                local arr = array(n);
-                for (local i = 0; i < n; i++) {
-                    local c = _in.char();
-                    arr[i] = c == op["null"] ? null : (_in.back(), _unpack(_in, vop));
-                }
-                return arr;
+                return _unpackVector(_in);
             case op.table:
                 local n = _unpacklen(_in);
                 local struct = n > 0 && n <= maxStructLen ? Struct.new() : null;
@@ -333,6 +309,62 @@
                 throw format("Unknown op code '%s' (%i) at offset %i, tail: %s",
                              code.tochar(), code, _in.pos(), _in.tail(32));
         }
+    }
+
+    // Vector = array with "running opcode" like structs
+    function _packVector(_itemsp, _ctx) {
+        local n = _itemsp.len();
+        // How many bytes we can save by using vector, will decrement this on adding each opcode
+        local gain = n;
+        local prevop = op["null"], text = "";
+        foreach (vp in _itemsp) {
+            local vop = vp[0];
+            gain--; // In most cases above we need to use opcode, i.e. won't save 1 byte
+
+            // Note that null does not change prevop
+            if (vop == op["null"]) text += vp;
+            // Singletons go as opcodes, makes them switchable to anything without |
+            else if (prevop in singletons) {
+                text += vp;
+                prevop = vop;
+            }
+            // This is where we save our byte, for everything same but nulls and bools
+            else if (prevop == vop) {
+                text += vp.slice(1);
+                gain++; // Didn't repeat opcode, save 1 byte
+            } else {
+                local compat = vop in implicit[prevop];
+                text += compat ? vp : ops.alter + vp;
+                if (!compat) gain--; // for alter opcode
+                prevop = vop;
+            }
+            if (gain < 0) return; // Bail out and pack as array no flashy
+        }
+        return ops.vector + _packlen(n, _ctx) + text;
+    }
+    function _unpackVector(_in) {
+        local n = _unpacklen(_in);
+        local arr = array(n);
+        local prevop = op["null"]
+        for (local i = 0; i < n; i++) {
+            local vop = _in.char();
+            if (vop == op["null"]) arr[i] = null;
+            else if (prevop in singletons) {
+                arr[i] = _unpack(_in, vop);
+                prevop = vop;
+            }
+            else if (vop == op.alter || vop in implicit[prevop]) {
+                if (vop == op.alter) vop = _in.char();
+                arr[i] = _unpack(_in, vop);
+                prevop = vop;
+            }
+            else {
+                // op didn't change, so svop is our opcode, and vop was read from data
+                _in.back();
+                arr[i] = _unpack(_in, prevop);
+            }
+        }
+        return arr;
     }
 
     function _packlen(n, _ctx) {
@@ -431,24 +463,71 @@
 // Keep it for backward compatibilty, esp. testing it
 ::std.Packer2 <- {
     version = 2
+    function _fillImplicit() {
+        implicit[op.cint] <- cset(op.integer); // Can't add float because '.' is in cint
+        implicit[op.mint] <- cset(op.cint op.integer); // Same
+        implicit[op.integer] <- cset(op.cint op.float);
+        implicit[op.float] <- cset(op.cint op.integer); // It works the other way around
+        implicit[op.sstring] <- cset(op.lstring op.ref);
+        implicit[op.lstring] <- cset(op.sstring op.ref);
+        implicit[op.ref] <- cset(op.sstring op.lstring);
+    }
 
     function _pack(_val, _ctx) {
         local typ = type(_val);
         switch (typ) {
-            // No mint here
-            case "integer":
+            case "integer": // No mint here
                 if (lcint <= _val && _val <= hcint) return ops.cint + i2c(_val);
                 local s = _val.tostring();
                 return ops[typ] + i2c(s.len()) + s;
+            case "array":
+                local n = _val.len();
+                if (n == 0) return ops.array + i2c(0); // use vector op in v3
             default:
-                return getdelegate()._pack(_val, _ctx);
+                return getdelegate()._pack.call(this, _val, _ctx);
         }
     }
-
     function _unpack(_in, _code = null) {
         local code = _code || _in.char();
         if (code == op.mint) throw format("Unknown op code '%s' (%i)", code.tochar(), code);
-        return getdelegate()._unpack(_in, code);
+        return getdelegate()._unpack.call(this, _in, code);
+    }
+
+    // Vector (in v2) = array with same opcode with possible nulls mixed in.
+    function _packVector(_itemsp, _ctx) {
+        local n = _itemsp.len();
+        // How many bytes we can save by using vector: only say op once instead of n times
+        local gain = n - 1;
+        local vop = op["null"], vtext = "", i = 0;
+        local xp, xop;
+        foreach (xp in _itemsp) {
+            xop = xp[0];
+            if (xop == op["null"]) {
+                gain--; // null is one byte both in array and vector, so no 1 byte save here
+                if (gain <= 0) return;
+                vtext += xp;
+            }
+            // Only do vectors with cint and refs with possible nulls for now.
+            // Reasons are - make it simple, usually not worth it for longer values.
+            else if (xop != op.cint && xop != op.ref) return;
+            else if (vop == op["null"]) vop = xop;
+            else if (xop != vop) return;
+
+            // Since these are cint and refs only xp = op + 1 cint char
+            vtext += xp.slice(1);
+        }
+        // NOTE: putting n before vop makes vector interoperable in structs with many things
+        return ops.vector + _packlen(n, _ctx) + vop.tochar() + vtext;
+    }
+    function _unpackVector(_in) {
+        local n = _unpacklen(_in);
+        local vop = _in.char();
+        local arr = array(n);
+        for (local i = 0; i < n; i++) {
+            local c = _in.char();
+            arr[i] = c == op["null"] ? null : (_in.back(), _unpack(_in, vop));
+        }
+        return arr;
     }
 }.setdelegate(::std.Packer);
 
@@ -550,8 +629,7 @@
 }.setdelegate(::std.Packer);
 
 ::std.Packer._init();
-
-::std.Packer1.ops <- {};
-foreach (k, v in ::std.Packer1.op) ::std.Packer1.ops[k] <- v.tochar();
+::std.Packer2._init();
+::std.Packer1._initOps();
 
 ::std.Packers <- {[1] = ::std.Packer1, [2] = ::std.Packer2, [3] = ::std.Packer}
