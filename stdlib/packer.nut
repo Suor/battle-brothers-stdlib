@@ -191,23 +191,11 @@
                     // This sounds really crazy but things appear to work since things happen in
                     // the same order here and in unpack.
                     foreach (i, k in struct.keys) {
-                        local svop = struct.ops[i], v = _val[k];
-                        local vp = _pack(v, _ctx);
-                        local vop = vp[0];
+                        local prevop = struct.ops[i], v = _val[k];
+                        local vp = _pack(v, _ctx); // struct.ops[i] might change inside, so we save
 
-                        // Note that null does not change saved opcode
-                        if (v == null) text += vp;
-                        // Singletons go as opcodes, makes them switchable to anything without |
-                        else if (svop in singletons) {
-                            text += vp;
-                            struct.ops[i] = vop; // set op
-                        }
-                        // This is where we save our byte, for everything same but nulls and bools
-                        else if (svop == vop) text += vp.slice(1);
-                        else {
-                            text += vop in implicit[svop] ? vp : ops.alter + vp;
-                            struct.ops[i] = vop; // change op
-                        }
+                        text += _packRunning(prevop, vp);
+                        if (v != null) struct.ops[i] = vp[0];
                     }
                     return text;
                 }
@@ -285,22 +273,9 @@
                 local struct = _in.structs.get(c2i(_in.char()));
                 local t = {};
                 foreach (i, k in struct.keys) {
-                    local svop = struct.ops[i], vop = _in.char();
-                    if (vop == op["null"]) t[k] <- null;
-                    else if (svop in singletons) {
-                        t[k] <- _unpack(_in, vop);
-                        struct.ops[i] = vop; // set op
-                    }
-                    else if (vop == op.alter || vop in implicit[svop]) {
-                        if (vop == op.alter) vop = _in.char();
-                        t[k] <- _unpack(_in, vop);
-                        struct.ops[i] = vop; // change op
-                    }
-                    else {
-                        // op didn't change, so svop is our opcode, and vop was read from data
-                        _in.back();
-                        t[k] <- _unpack(_in, svop);
-                    }
+                    local unpacked = _unpackRunning(struct.ops[i], _in);
+                    t[k] <- unpacked.v;
+                    if (unpacked.v != null) struct.ops[i] = unpacked.vop;
                 }
                 return t;
             case op.ref:
@@ -318,27 +293,12 @@
         local gain = n;
         local prevop = op["null"], text = "";
         foreach (vp in _itemsp) {
-            local vop = vp[0];
-            gain--; // In most cases above we need to use opcode, i.e. won't save 1 byte
-
-            // Note that null does not change prevop
-            if (vop == op["null"]) text += vp;
-            // Singletons go as opcodes, makes them switchable to anything without |
-            else if (prevop in singletons) {
-                text += vp;
-                prevop = vop;
-            }
-            // This is where we save our byte, for everything same but nulls and bools
-            else if (prevop == vop) {
-                text += vp.slice(1);
-                gain++; // Didn't repeat opcode, save 1 byte
-            } else {
-                local compat = vop in implicit[prevop];
-                text += compat ? vp : ops.alter + vp;
-                if (!compat) gain--; // for alter opcode
-                prevop = vop;
-            }
+            local packed = _packRunning(prevop, vp);
+            gain -= packed.len() - vp.len() + 1;
             if (gain < 0) return; // Bail out and pack as array no flashy
+
+            text += packed;
+            if (vp != ops["null"]) prevop = vp[0];
         }
         return ops.vector + _packlen(n, _ctx) + text;
     }
@@ -347,24 +307,28 @@
         local arr = array(n);
         local prevop = op["null"]
         for (local i = 0; i < n; i++) {
-            local vop = _in.char();
-            if (vop == op["null"]) arr[i] = null;
-            else if (prevop in singletons) {
-                arr[i] = _unpack(_in, vop);
-                prevop = vop;
-            }
-            else if (vop == op.alter || vop in implicit[prevop]) {
-                if (vop == op.alter) vop = _in.char();
-                arr[i] = _unpack(_in, vop);
-                prevop = vop;
-            }
-            else {
-                // op didn't change, so svop is our opcode, and vop was read from data
-                _in.back();
-                arr[i] = _unpack(_in, prevop);
-            }
+            local unpacked = _unpackRunning(prevop, _in);
+            arr[i] = unpacked.v;
+            if (unpacked.v != null) prevop = unpacked.vop;
         }
         return arr;
+    }
+
+    function _packRunning(_prevop, _vp) {
+        local vop = _vp[0];
+        return _prevop in singletons    ? _vp :
+               _prevop == vop           ? _vp.slice(1) : // Here we save our byte
+               vop in implicit[_prevop] ? _vp : ops.alter + _vp;
+    }
+    function _unpackRunning(_prevop, _in) {
+        local vop = _in.char();
+        if (vop == op.alter) vop = _in.char();
+        else if (!(_prevop in singletons) && !(vop in implicit[_prevop])) {
+            // op didn't change, so prevop is our opcode, and vop was read from data
+            vop = _prevop;
+            _in.back();
+        }
+        return {vop = vop, v = _unpack(_in, vop)}
     }
 
     function _packlen(n, _ctx) {
