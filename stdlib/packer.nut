@@ -36,7 +36,7 @@
         struct = '}'  // table with fixed keys and types
         ref = '*'  // Use negative cint to be implicitly compatible with sstring and lstring
         alter = '|'
-        // Out of cint:   ~"#{|}  unused: <space>
+        // Out of cint:   !~"#{|} unused: <space>
         // Negative cint: +-,.'*  unused: $%&()/
         // Positive cint  []      unused: _:;<=?@\^`
         //
@@ -46,25 +46,23 @@
         // this enforces certain limitation on which symbols can be used as opcodes.
         //
         // Case 1: array and table lens.
-        // These are packed as this in v2:
+        // These are packed as this in v2+:
         //     len <= 74 (hcint): op.array + cint (len) + data
         //         longer arrays: op.array + op.integer + cint (len of len) len.tostring() + data
         // This demands op.integer to be either out of cint or in negative cint space, to be not
         // confused with cint len, which may go from '0' to 'z' (hchar). So I moved op.integer to #
         //
-        // Case 2: vectors.
-        // Vector is an array for which we do not repeat opcode for each element, however, we still
-        // want to allow nulls there as this seems somewhat probable. This means null opcode should
-        // be outside cint if we want to put nulls in cint vector. This is why I changed null to ~.
-        //
-        // Case 3: structs.
-        // Structs save on keys - even if it's only 2 bytes for ref - but also on opcodes same as
-        // vectors. However, we want to allow some type intermixture especially:
+        // Case 2: running opcode in vectors and structs.
+        // This optimises for opcode repetition, so best case scenario same opcode over array or
+        // repeating tables. However, we want to allow some type intermixture especially:
         //     - null with everything
-        //     - cint, integer, float
+        //     - cint, mint, integer, float
         //     - sstring, lstring, ref
+        //     - table, struct and array, vector
         // This leads to several requirements:
-        //     - alter opcode needs to be out of cint for anything be puttable after cint value
+        //     - null opcode needs to be out of cint, because cints often go right after an opcode.
+        //       This is why I changed null to ~.
+        //     - alter opcode needs to be out of cint for same reason
         //     - integer opcode being out of cint to save on alter op code when mixing these two.
         //       I moved it to negative cint before, now I moved lchar from ! to $. This shortened
         //       negative cint range but alowed this optimization.
@@ -75,9 +73,9 @@
         // same struct record in cache, making it more efficient.
         //
         // This makes ascii printable chars in negative cint and especially outisde cint a scarce
-        // resource :) Some things might be moved, i.e. table and struct opcodes do not need to be
-        // out of cint at all, and lstring may move to negative cint. However, these have a nice
-        // ideomatic correspondense, which I don't want to break.
+        // resource :) Some things might be moved, i.e. table and struct opcodes may go to negative
+        // cint at all, same for lstring. However, these have a nice ideomatic correspondense,
+        // which I don't want to break.
     }
     function _init() {
         _initOps();
