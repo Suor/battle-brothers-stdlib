@@ -26,10 +26,7 @@
         mint = '!'
         integer = '#' // Use negative cint so that it could not be confused with array/table len
         float = '.'
-        sstring = "'"[0]
-        lstring = '"'
-        // TODO: op code for empty string? to not use ref for it, save 1 char.
-        //       Downside is complicating vector and struct packing code.
+        string = "'"[0]
         array = '['
         vector = ']'  // typed array, nulls allowed
         table = '{'
@@ -107,9 +104,8 @@
         implicit[op.mint] <- cset(op.cint op.integer); // Same
         implicit[op.integer] <- cset(op.cint op.mint op.float);
         implicit[op.float] <- cset(op.cint op.mint op.integer); // It works the other way around
-        implicit[op.sstring] <- cset(op.lstring op.ref);
-        implicit[op.lstring] <- cset(op.sstring op.ref);
-        implicit[op.ref] <- cset(op.sstring op.lstring);
+        implicit[op.string] <- cset(op.ref);
+        implicit[op.ref] <- cset(op.string);
         implicit[op.table] <- cset(op.struct);
         implicit[op.struct] <- cset(op.table);
     }
@@ -160,8 +156,7 @@
                 if (ref != null) return ops.ref + i2c(ref);
                 _ctx.strings.add(_val);
                 local n = _val.len();
-                if (n <= hcint) return ops.sstring + i2c(n) + _val;
-                return ops.lstring + _pack(n, _ctx) + _val;
+                return ops.string + _packlen(n, _ctx) + _val;
             case "array":
                 local n = _val.len();
                 // use vector since they are more common, and so can save opcode in other vectors
@@ -242,9 +237,8 @@
             case op.float:
                 local n = c2i(_in.char());
                 return code == op.integer ? _in.read(n).tointeger() : _in.read(n).tofloat();
-            case op.sstring:
-            case op.lstring:
-                local n = code == op.sstring ? c2i(_in.char()) : _unpack(_in);
+            case op.string:
+                local n = _unpacklen(_in);
                 local str = _in.read(n);
                 _in.cache.add(str);
                 return str;
@@ -425,9 +419,27 @@
 // Keep it for backward compatibilty, esp. testing it
 ::std.Packer2 <- {
     version = 2
+    op = {
+        "null": '~'
+        "true": '+'
+        "false": '-'
+        cint = ','
+        integer = '#'
+        float = '.'
+        sstring = "'"[0]
+        lstring = '"'
+        array = '['
+        vector = ']'
+        table = '{'
+        struct = '}'
+        ref = '*'
+        alter = '|'
+        // needed to call new _unpack
+        mint = '!'
+        string = "'"[0]
+    }
     function _fillImplicit() {
         implicit[op.cint] <- cset(op.integer); // Can't add float because '.' is in cint
-        implicit[op.mint] <- cset(op.cint op.integer); // Same
         implicit[op.integer] <- cset(op.cint op.float);
         implicit[op.float] <- cset(op.cint op.integer); // It works the other way around
         implicit[op.sstring] <- cset(op.lstring op.ref);
@@ -442,6 +454,13 @@
                 if (lcint <= _val && _val <= hcint) return ops.cint + i2c(_val);
                 local s = _val.tostring();
                 return ops[typ] + i2c(s.len()) + s;
+            case "string":
+                local ref = _ctx.strings.ref(_val);
+                if (ref != null) return ops.ref + i2c(ref);
+                _ctx.strings.add(_val);
+                local n = _val.len();
+                if (n <= hcint) return ops.sstring + i2c(n) + _val;
+                return ops.lstring + _pack(n, _ctx) + _val;
             case "array":
                 local n = _val.len();
                 if (n == 0) return ops.array + i2c(0); // use vector op in v3
@@ -451,7 +470,16 @@
     }
     function _unpack(_in, _code = null) {
         local code = _code || _in.char();
-        if (code == op.mint) throw format("Unknown op code '%s' (%i)", code.tochar(), code);
+        switch (code) {
+            case op.mint:
+                throw format("Unknown op code '%s' (%i)", code.tochar(), code);
+            case op.sstring:
+            case op.lstring:
+                local n = code == op.sstring ? c2i(_in.char()) : _unpack(_in);
+                local str = _in.read(n);
+                _in.cache.add(str);
+                return str;
+        }
         return getdelegate()._unpack.call(this, _in, code);
     }
 

@@ -58,7 +58,7 @@ assertPack("hello", "'5hello");
 assertPack("'", "'1'");
 // A long string
 local lstr = "_0123456789abcdefghiklmnopqurstuvqxyz0123456789abcdefghiklmnopqurstuvqxyz012345";
-assertPack(lstr, "\"!%3" + lstr, "@>2\"#279" + lstr, "@>1\";279" + lstr);
+assertPack(lstr, "'!%3" + lstr, "@>2\"#279" + lstr, "@>1\";279" + lstr);
 
 // Arrays
 assertPack([], "]0", "@>2[0", "@>1[,0");
@@ -129,7 +129,7 @@ assertPack([{a = 1}, {a = -2}], "]2{1'1a,1}0.", "@>2[2{1'1a,1}0.");  // -2 in ci
 assertPack([{a = 1}, {a = 0.5}], "]2{1'1a,1}0|.30.5", "@>2[2{1'1a,1}0|.30.5");
 assertPack([{a = 1.0}, {a = 1}], "]2{1'1a.11}0,1", "@>2[2{1'1a.11}0,1");
 assertPack([{a = 1}, {a = ""}], "]2{1'1a,1}0|'0", "@>2[2{1'1a,1}0|'0");
-assertPack([{a = 1}, {a = lstr}], "]2{1'1a,1}0|\"!%3" + lstr, "@>2[2{1'1a,1}0|\"#279" + lstr);
+assertPack([{a = 1}, {a = lstr}], "]2{1'1a,1}0|'!%3" + lstr, "@>2[2{1'1a,1}0|\"#279" + lstr);
 assertPack([{a = 1}, {a = []}], "]2{1'1a,1}0|]0", "@>2[2{1'1a,1}0|[0");
 assertPack([{a = 1}, {a = [7 7 7]}], "]2{1'1a,1}0|]3,777", "@>2[2{1'1a,1}0|]3,777");
 assertPack([{a = "hi"}, {a = 1}, {a = "hi"}], "]3{1'1a'2hi}0|,10|*0", "@>2[3{1'1a'2hi}0|,1}0|*0"); // cint -> ref
@@ -165,10 +165,10 @@ assertPack([{a = "hi"}, {a = "bye"}, {a = "bye"}, {a = "z"}],
     "]4{1'1a'2hi}03bye0*00'1z",
  "@>2[4{1'1a'2hi}03bye}0*0}0'1z");
 assertPack([{a = lstr}, {a = lstr}, {a = lstr + "_"}, {a = "z"}, {a = lstr + "~"}],
-    "]5{1'1a\"!%3" + lstr + "}0*00\"!&3" + lstr + "_0'1z0\"!&3" + lstr + "~",
+    "]5{1'1a'!%3" + lstr + "}0*00'!&3" + lstr + "_01z0!&3" + lstr + "~",
  "@>2[5{1'1a\"#279" + lstr + "}0*0}0\"#280" + lstr + "_}0'1z}0\"#280" + lstr + "~");
 assertPack([{a = lstr}, {a = 100}],
-    "]2{1'1a\"!%3" + lstr + "}0|!:3",
+    "]2{1'1a'!%3" + lstr + "}0|!:3",
  "@>2[2{1'1a\"#279" + lstr + "}0|#3100");  // lstring -> integer
 
 // Structs: nested
