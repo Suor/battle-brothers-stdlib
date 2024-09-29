@@ -26,6 +26,20 @@ Table.extend(Util, {
         return ::isKindOf(_object, _className);
     }
 
+    function isIn(_key, _obj) {
+        if (typeof _obj == "instance") {
+            if (!(_obj instanceof ::WeakTableRef)) return _key in _obj;
+            if (_obj.isNull()) return false;
+            _obj = _obj.get();
+        }
+        while(_obj != null) {
+            if (_key in _obj) return true;
+            // If we do it in hooks, i.e. ::mods_hookExactClass() delegates might not be set yet
+            _obj = "SuperName" in _obj ? _obj[_obj.SuperName] : _obj.getdelegate();
+        }
+        return false;
+    }
+
     function getMember(_obj, _key) {
         // Make it strict for now: throw when unsure, might make it more permissive later
         if (typeof _obj == "instance") {
