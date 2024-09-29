@@ -22,9 +22,9 @@
         "null": '~'  // Use char outside of cint range to work with vectors and structs
         "true": '+'
         "false": '-'
-        cint = ','
-        mint = '!'
-        integer = '#' // Use negative cint so that it could not be confused with array/table len
+        cint = '!'
+        mint = '#'
+        integer = '"'
         float = '.'
         string = "'"[0]
         array = '['
