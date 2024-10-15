@@ -1,3 +1,12 @@
+2.1
+- added Util.isNull(), .isKindOf(), .isIn()
+- added a couple of Actor utils
+- added Player.addTalents(probs)
+- added Table.get()
+- added Packer v3 (1.5x to 2x better compression)
+Experimental - not yet documented:
+- added Table.getIn()
+
 2.0
 - added Player:
     - giveLevels()
