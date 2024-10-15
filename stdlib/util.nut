@@ -17,13 +17,17 @@ Table.extend(Util, {
         return value >= max ? max : value <= min ? min : value;
     }
 
-    function isKindOf(_object, _className) {
-        if (_object == null || _className == null) return false;
-        if (typeof _object == "instance" && _object instanceof ::WeakTableRef) {
-            if (_object.isNull()) return false;
-            _object = _object.get();
+    function isNull(_obj) {
+        return _obj == null || (_obj instanceof ::WeakTableRef && _obj.isNull());
+    }
+
+    function isKindOf(_obj, _className) {
+        if (_obj == null || _className == null) return false;
+        if (typeof _obj == "instance" && _obj instanceof ::WeakTableRef) {
+            if (_obj.isNull()) return false;
+            _obj = _obj.get();
         }
-        return ::isKindOf(_object, _className);
+        return ::isKindOf(_obj, _className);
     }
 
     function isIn(_key, _obj) {

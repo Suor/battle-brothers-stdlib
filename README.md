@@ -620,6 +620,33 @@ A way to make a dummy Debug object, usable to switch off and on debugging in you
 
 ## Other Utils
 
+#### `isNull(obj)`
+
+Checks if obj is null or a null `WeakTableRef`
+
+#### `isKindOf(obj, className)`
+
+Checks if an object has the given `className`. Same as BB `isKindOf()` global but correctly works with `WeakTableRef`s.
+
+
+#### `isIn(key, obj)`
+
+Checks whether `obj` has the given key. Correctly handles `WeakTableRef`, delegation and BB `SuperName`s.
+
+#### `getMember(obj, key)`
+
+Gets key for a BB class instance, handling superclasses, delegates and weakrefs.
+
+```squirrel
+::mods_hookExactClass("items/weapons/named/named_goblin_heavy_bow", function (cls) {
+    local randomizeValues = Util.getMember(cls, "randomizeValues");
+    cls.randomizeValues <- function () {
+        randomizeValues();
+        this.m.FatigueOnSkillUse -= 3; // Make goblin named bows easier to use
+    }
+})
+```
+
 #### `clamp(value, min, max)`
 
 Boxes a given value into `[min, max]` bounds.
@@ -663,20 +690,6 @@ cls.onDeserialize = function(_out) {
 ```
 
 See more on serialization a [special piece on it](docs/savegames.md).
-
-#### `getMember(obj, key)`
-
-Gets key for a BB class instance, handling superclasses, delegates and weakrefs.
-
-```squirrel
-::mods_hookExactClass("items/weapons/named/named_goblin_heavy_bow", function (cls) {
-    local randomizeValues = Util.getMember(cls, "randomizeValues");
-    cls.randomizeValues <- function () {
-        randomizeValues();
-        this.m.FatigueOnSkillUse -= 3; // Make goblin named bows easier to use
-    }
-})
-```
 
 
 # Feedback
@@ -741,11 +754,14 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`with(options)`](#withoptions)
     - [`noop()`](#noop)
 - [Other Utils](#other-utils)
+    - [`isNull(obj)`](#isnullobj)
+    - [`isKindOf(obj, className)`](#iskindofobj-classname)
+    - [`isIn(key, obj)`](#isinkey-obj)
+    - [`getMember(obj, key)`](#getmemberobj-key)
     - [`clamp(value, min, max)`](#clampvalue-min-max)
     - [`deepEq(a, b)`](#deepeqa-b)
     - [`pack(data)`](#packdata)
     - [`unpack(data)`](#unpackdata)
-    - [`getMember(obj, key)`](#getmemberobj-key)
 
 <!-- /MarkdownTOC -->
 
