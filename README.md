@@ -13,6 +13,7 @@ Or just a thing to take the place of lacking Squirrel/Battle Brothers standard l
     - [Random Generator Helpers](#random-generator-helpers)
     - [Array](#array)
     - [Table](#table)
+    - [Actor](#actor)
     - [Player](#player)
     - [Debug Helpers](#debug-helpers)
     - [Other Utils](#other-utils)
@@ -65,6 +66,9 @@ Player.giveLevels(_player, 3);
 
 // Give 2 good traits
 Player.addTraits(_player, 2, {good = true, soso = false, bad = false});
+
+// Check whether actor is ok, not null, dead, broken, is on map
+if (!Actor.isValidTarget(_entity)) return null;
 
 // Various str utils
 local short = Str.cutprefix(name, "Ancient ");
@@ -447,6 +451,16 @@ Table.deepExtend(this.m.data, Util.unpack(::World.Flags.get("mymod")));
 About this particular example, see more in [`Util.pack()`](#packdata) and in a special [piece on serialization](docs/savegames.md).
 
 
+## Actor
+
+#### `isAlive(actor)`
+
+Checks whether actor is not null, alive and not dying.
+
+#### `isValidTarget(actor)`
+
+Same as above plus `isPlacedOnMap()`. The best thing to use on potential enemies and allies in AI code or skill targeting code. In most cases trying to operate with an entity not passing this will result in a crash.
+
 ## Player
 
 #### `giveLevels(player, num)`
@@ -745,6 +759,9 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`merge(table1, table2)`](#mergetable1-table2)
     - [`setDefaults(dst, defaults)`](#setdefaultsdst-defaults)
     - [`deepExtend(dst, src)`](#deepextenddst-src)
+- [Actor](#actor)
+    - [`isAlive(actor)`](#isaliveactor)
+    - [`isValidTarget(actor)`](#isvalidtargetactor)
 - [Player](#player)
     - [`giveLevels(player, num)`](#givelevelsplayer-num)
     - [`rerollTalents(player, num, opts = null)`](#rerolltalentsplayer-num-opts--null)
