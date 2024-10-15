@@ -30,6 +30,9 @@
         return total;
     }
 
+    function without(arr, ...) {
+        throw "Not implemented"
+    }
     function findBy(arr, pred) {
         foreach (i, item in arr) {
             if (pred(item)) return i;

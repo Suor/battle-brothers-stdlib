@@ -9,6 +9,7 @@ local std = ::std <- {version = version, Util = {}, Hook = {}};
 
 // If Adam's hooks are present then register this, so that people could declare a dependency
 if ("mods_registerMod" in getroottable()) ::mods_registerMod("stdlib", version);
+// else if ("Hooks" in getroottable()) ::Hooks.register("stdlib", version ???)
 
 ::include("stdlib/array");
 ::include("stdlib/table");
