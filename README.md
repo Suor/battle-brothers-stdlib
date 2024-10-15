@@ -405,6 +405,14 @@ local totalWeight = Array.sum(items.map(@(item) item.getStaminaModifier()));
 
 ## Table
 
+#### `get(table, key, def = null)`
+
+Returns the value for a key or a given default. Saves some typing, space and repetition comparing to ``... in ... ? ... : ...`:
+
+```squirrel
+local count = Table.get(this.m.EffectCounts, effectID, 0)
+```
+
 #### `keys(table)`
 
 Returns an array of table keys.
@@ -753,6 +761,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`min(arr, key = null)`](#minarr-key--null)
     - [`sum(arr)`](#sumarr)
 - [Table](#table)
+    - [`get(table, key, def = null)`](#gettable-key-def--null)
     - [`keys(table)`](#keystable)
     - [`values(table)`](#valuestable)
     - [`extend(dst, src)`](#extenddst-src)

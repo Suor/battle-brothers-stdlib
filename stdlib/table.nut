@@ -1,4 +1,15 @@
 ::std.Table <- {
+    function get(table, key, def = null) {
+        return key in table ? table[key] :  def;
+    }
+    function getIn(table, keys, def = null) {
+        foreach (key in keys) {
+            if (key in table) table = table[key];
+            else return def;
+        }
+        return table;
+    }
+
     function keys(data) { // Just .keys() in newer Squirrel
         local res = [];
         foreach (key, _ in data) res.push(key);
