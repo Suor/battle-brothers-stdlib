@@ -28,10 +28,10 @@
         float = '.'
         string = "'"[0]
         array = '['
-        vector = ']'  // typed array, nulls allowed
+        vector = ']'  // running opcode array
         table = '{'
-        struct = '}'  // table with fixed keys and types
-        ref = '*'  // Use negative cint to be implicitly compatible with sstring and lstring
+        struct = '}'  // running opcode table with known keys
+        ref = '*'  // Use negative cint to be implicitly compatible with string
         alter = '|'
         // Out of cint:   !~"#{|} unused: <space>
         // Negative cint: +-,.'*  unused: $%&()/
