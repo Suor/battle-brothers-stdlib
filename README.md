@@ -457,15 +457,19 @@ Give `num` levels to `player`. This adds XP and advances everything necessary.
 
 Rerolls talents, a.k.a. stars, for `player`. Clearing them and then adding them in `num` attributes. Available `opts` are:
 
-- `weighted` - better chances to get talent in attributes favored by background. Plus higher chance to get 2 or 3 stars in those attributes too. The attributes not favored by background get talents rarer and have lower chances for more stars. Defaults to `false`.
+- `probs` - probabilities for 1, 2 or 3 stars. Defaults to `[60 30 10]` as in vanilla.
+- `weighted` - better chances to get talent in attributes favored by background. Plus higher chance to get 2 or 3 stars in those attributes too. The attributes not favored by background get talents rarer and have lower chances for more stars. Work on top of `probs`. Defaults to `false`.
 - `excluded` - how to treat background exclusions:
     + "strict" - never get excluded talents,
     + "relaxed" - get any other first, then may get excluded (default),
     + "ignored" - completely ignore the excluded list.
 
 ```squirrel
-// Set 2 to 4 weighted talents for a player
+// Roll 2 to 4 weighted talents for a player
 Player.rerollTalents(_player, 2 + Rand.poly(2, 0.5), {weighted = true})
+
+// Roll 3 talents with heightened probabilities for 2 and 3 stars
+Player.rerollTalents(_player, 3, {probs = [35 40 25]})
 ```
 
 #### `clearTalents(player)`

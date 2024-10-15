@@ -32,6 +32,7 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
         _opts = Util.extend({
             weighted = false
             excluded = "relaxed"
+            probs = [60 30 10] // Game default
         }, _opts || {})
         if (["strict" "relaxed" "ignored"].find(_opts.excluded) == null)
             throw "Use excluded = \"strict\", \"relaxed\" or \"ignored\", not " + _opts.excluded;
@@ -67,7 +68,7 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
         local probsStr = array(8, "-");
         foreach (i in chosen) {
             local w = weights[i];
-            local probs = [60 30 10];
+            local probs = clone _opts.probs;
             probs[2] *= w;           // 3 stars
             probs[1] *= (w + 1) / 2; // 2 stars
             _player.m.Talents[i] = Rand.choice([1 2 3], probs);
