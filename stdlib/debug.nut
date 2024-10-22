@@ -99,7 +99,7 @@ Debug = ::std.Debug <- {
             if (skipped) items.push("...");
             return startln + ppCont(items, _level, "[", "]") + endln;
         } else if (data == null) {
-            return "null" + endln;
+            return startln + "null" + endln;
         } else if (typeof data == "string") {
             return startln + "\"" + Str.replace(data, "\"", "\\\"") + "\"" + endln;
         } else {
