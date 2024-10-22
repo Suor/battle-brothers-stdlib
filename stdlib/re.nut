@@ -48,13 +48,14 @@ Re = ::std.Re <- {
         if (capture == null) return null;
 
         local len = capture.len();
-        if (len == 1 || len == 2) return Re._matchToStr(str, capture.top());
-        return capture.slice(1).map(@(c) Re._matchToStr(str, c));
+        if (len == 1 || len == 2) return Re._matchToStr(str, capture.top(), 0, str.len());
+        local low = ::Math.max(capture[0].begin, 0);
+        local high = ::Math.min(capture[0].end, str.len());
+        return capture.slice(1).map(@(c) Re._matchToStr(str, c, low, high));
     }
 
-    function _matchToStr(str, m) {
-        local len = str.len();
-        local found = m.begin >= 0 && m.end >= 0 && m.begin < len && m.end <= len;
+    function _matchToStr(str, m, low, high) {
+        local found = m.begin >= low && m.end >= low && m.begin <= high && m.end <= high;
         return found ? str.slice(m.begin, m.end) : null;
     }
 }
