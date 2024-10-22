@@ -213,6 +213,15 @@ Re.replace(desc, "(\d+)( bonus|fatigue)", function (num, what) {
 })
 ```
 
+#### `escape(str)`
+
+Escapes `str` so it could be used as a part of regular expression matching it as is. Might be useful to construct regular expressions dynamically:
+
+```squirrel
+local name = bro.getName();
+local re = regexp(Re.escape(name) + @".*?is hit for");
+```
+
 
 ## Text Formatting
 
@@ -740,6 +749,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`test(str, re)`](#teststr-re)
     - [`all(str, re)`](#allstr-re)
     - [`replace(str, re, repl)`](#replacestr-re-repl)
+    - [`escape(str)`](#escapestr)
 - [Text Formatting](#text-formatting)
     - [`positive(value)`, `negative(value)`, `damage(value)`, `ally(value)`, `enemy(value)`](#positivevalue-negativevalue-damagevalue-allyvalue-enemyvalue)
     - [`colored(value, color)`](#coloredvalue-color)
