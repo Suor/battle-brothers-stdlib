@@ -15,8 +15,8 @@ function startswith(s, sub) {
 ::Math <- {
     minf = @(a, b) a <= b ? a : b
     maxf = @(a, b) a >= b ? a : b
-    // min = @(a, b) (a <= b ? a : b).tointeger()
-    // max = @(a, b) (a >= b ? a : b).tointeger()
+    min = @(a, b) (a <= b ? a : b).tointeger()
+    max = @(a, b) (a >= b ? a : b).tointeger()
     // round = @(x) floor(x + 0.5)
     // function rand(min, max) {
     //     min = floor(min);
