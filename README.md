@@ -532,6 +532,9 @@ Give `num` random traits to `player`. Doesn't consult player's background or oth
 Player.addTraits(_player, 2, {soso = false})
 ```
 
+Returns a list of traits added, i.e. actual BB objects.
+
+
 ## Debug Helpers
 
 #### `log(name, [value, options = {}])`

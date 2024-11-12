@@ -156,7 +156,7 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
         return "GOOD";
     }
     function addTraits(_player, _num, _opts = null) {
-        if (_num == 0) return;
+        if (_num == 0) return [];
 
         _opts = Util.extend({
             good = true
@@ -172,17 +172,20 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
             return !_player.getSkills().hasSkill(t[0]);
         });
 
-        local added = 0, good = 0, notGood = 0;
+        local added = 0, good = 0, notGood = 0, changes = [];
         foreach (trait in Rand.itake(pool)) {
             if (this.Debug) {
                 local type = this.traitType(trait[0]);
                 ::logInfo("stdlib: bro " + _player.getName() + " got " + trait[0] + " " + type);
             }
-            _player.getSkills().add(::new(trait[1]));
+            local skill = ::new(trait[1]);
+            _player.getSkills().add(skill);
             added++;
+            changes.push(skill);
             // In stupid mode each bad or so-so trait must be compensated with a good one
             if (_opts.stupid) (this.traitType(trait[0]) == "GOOD") ? good++ : notGood++;
             if (added >= _num && (!_opts.stupid || good >= notGood && good >= _num)) break;
         }
+        return changes;
     }
 }
