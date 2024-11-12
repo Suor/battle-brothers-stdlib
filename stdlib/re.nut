@@ -44,8 +44,10 @@ Re = ::std.Re <- {
         return n > 0 ? res + str.slice(pos) : str;
     }
 
+    strEscapes = {"\n": @"\n", "\r": @"\r", "\t": @"\t"}
     function escape(str) {
-        return Re.replace(str, @"[.*+?|{}^$()\\\[\]]", @(m) "\\" + m);
+        return Re.replace(str, @"[.*+?|{}^$()\\\[\]\n\r\t]",
+            @(m) m in strEscapes ? strEscapes[m] : "\\" + m);
     }
 
     function _captureToValue(str, capture) {

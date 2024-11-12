@@ -36,6 +36,10 @@ assertEq(Re.replace("a1a23a", @"a\d+", "x_"), "x_x_a")
 assertEq(Re.replace("_1_17_", @"_(\d+)", (@(m) "." + (m.tointeger() + 1))), ".2.18_")
 assertEq(Re.replace("a1_b45", @"(\w)(\d+)", (@(c, d) c.toupper() + (d.tointeger() + 1))), "A2_B46")
 
+assertEq(Re.escape("hi, x."), @"hi, x\.")
+assertEq(Re.escape("hi\nx"), @"hi\nx")
+assertEq(Re.escape("hi\tx\r"), @"hi\tx\r")
+
 // Text
 assertEq(Text.positive("good"), "[color=green]good[/color]")
 assertEq(Text.negative("bad"), "[color=red]bad[/color]")
