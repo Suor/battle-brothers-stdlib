@@ -26,6 +26,17 @@ Str = ::std.Str <- {
     function cutsuffix(s, sub) {
         return Str.endswith(s, sub) ? s.slice(0, -sub.len()) : s;
     }
+
+    function split(sep, s, count = 2147483647) {
+        local parts = [], seplen = sep.len(), n = 0, prev = 0, pos;
+        while (n < count && (pos = s.find(sep, prev))) {
+            parts.push(s.slice(prev, pos));
+            prev = pos + seplen;
+            n++;
+        }
+        parts.push(s.slice(prev))
+        return parts;
+    }
     function join(sep, lines) {
         local s = "";
         foreach (i, line in lines) {

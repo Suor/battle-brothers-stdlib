@@ -146,9 +146,17 @@ local short = Str.cutprefix(_entity.getName(), "Ancient ");
 
 If a given string ends with `suffix` then returns the string with the suffix cut. Otherwise returns the whole string.
 
+#### `split(sep, s)`
+
+Split a string with the given separator:
+
+```squirrel
+Str.split(", ", "Hi, there")  # ["Hi", "there"]
+```
+
 #### `join(sep, strings)`
 
-Joins an array of strings into one using given separator. 
+Joins an array of strings into one using given separator.
 ```squirrel
 // Title case a sentence
 Str.join(" ", split("hey there", " ").map(Str.capitalize))
@@ -742,6 +750,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`endswith(str, suffix)`](#endswithstr-suffix)
     - [`cutprefix(str, prefix)`](#cutprefixstr-prefix)
     - [`cutsuffix(str, suffix)`](#cutsuffixstr-suffix)
+    - [`split(sep, s)`](#splitsep-s)
     - [`join(sep, strings)`](#joinsep-strings)
     - [`replace(str, old, new, [count])`](#replacestr-old-new-count)
 - [Regular Expressions](#regular-expressions)

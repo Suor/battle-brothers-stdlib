@@ -11,6 +11,12 @@ assert(Str.replace("hi, there. Hi, hi, bye", "hi", "hello") == "hello, there. Hi
 assert(Str.replace("hi, there. Hi, hi, bye", "hi", "hello", 1) == "hello, there. Hi, hi, bye")
 assert(Str.replace("ababa", "aba", "_") == "_ba")
 
+assertEq(Str.split(", ", "hi, there"), ["hi", "there"])
+assertEq(Str.split(" ", "hi  there"), ["hi", "", "there"])
+assertEq(Str.split("zyx", "hi, there"), ["hi, there"])
+assertEq(Str.split(".", "a.b.c"), ["a", "b", "c"])
+assertEq(Str.split(".", "a.b.c", 1), ["a", "b.c"])
+
 // Re
 assert(Re.find("Ivan IV", " ([IVXLC]+)$") == "IV")
 assert(Re.find("Ivan IV", " [IVXLC]+$") == " IV")
