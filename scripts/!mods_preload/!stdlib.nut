@@ -7,9 +7,10 @@ if ("std" in getroottable() && ::std.version >= version) return;
 // Hook is "imported" by some versions of Standout Enemies, but not used.
 local std = ::std <- {version = version, Util = {}, Hook = {}};
 
-// If Adam's hooks are present then register this, so that people could declare a dependency
+// If Adam's hooks are present then register this, so that people could declare a dependency,
+// if not available do the same with Modern Hooks
 if ("mods_registerMod" in getroottable()) ::mods_registerMod("stdlib", version);
-// else if ("Hooks" in getroottable()) ::Hooks.register("stdlib", version ???)
+else if ("Hooks" in getroottable()) ::Hooks.__unverifiedRegister("stdlib", version, "stdlib");
 
 ::include("stdlib/array");
 ::include("stdlib/table");
