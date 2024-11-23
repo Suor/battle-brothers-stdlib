@@ -1,3 +1,11 @@
+2.2
+- added Str.split()
+- added Re.escape()
+- even safer and faster way to extract regexp matches
+- made Player.addTraits() return a list of added traits
+- fixed Debug.log(..., null)
+- if only Modern Hooks are present then register with them
+
 2.1
 - optimized Packer more (1.5x to 2x better compression)
 - added Util.isNull(), .isKindOf(), .isIn()
