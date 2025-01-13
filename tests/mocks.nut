@@ -23,7 +23,8 @@ function startswith(s, sub) {
     //     max = floor(max);
     //     return (min + floor(::rand() * (max - min + 0.99999) / RAND_MAX)).tointeger();
     // }
-    // pow = pow
+    floor = floor
+    pow = pow
 }
 
 ::Const <- {
@@ -290,4 +291,6 @@ function startswith(s, sub) {
     ::Log.last = s;
 }
 
-class WeakTableRef {}
+class WeakTableRef {
+    WeakTable = null;
+}
