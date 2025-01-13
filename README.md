@@ -18,6 +18,7 @@ Or just a thing to take the place of lacking Squirrel/Battle Brothers standard l
     - [Debug Helpers](#debug-helpers)
     - [Dev Utils](#dev-utils)
     - [Other Utils](#other-utils)
+- [Experimental](#experimental)
 - [Feedback](#feedback)
 - [Index](#index)
 
@@ -96,7 +97,7 @@ See also [Serialization for Humans](docs/savegames.md).
 
 Is compatible with everything. Does not modify the game only provides useful utilities. Is safe to add and remove at any time.
 
-Additionally, stdlib is guaranteed to be backwards compatible, i.e. it is always safe to upgrade it to a newer version. This covers all the functions and their params documented here (except Dev Utils), any pieces not metioned in this README may disappear or change. Also, the specific output of functions intended to be read by humans - several debug utils - are not covered by these guarantees.
+Additionally, stdlib is guaranteed to be backwards compatible, i.e. it is always safe to upgrade it to a newer version. This covers all the functions and their params documented here (except Dev Utils and experimental stuff), any pieces not metioned in this README may disappear or change. Also, the specific output of functions intended to be read by humans - several debug utils - are not covered by these guarantees.
 
 stdlib does not depend on anything, however if [modhooks][] or [Modern Hooks][ModernHooks] are present then it will register itself, so you can declare a dependency like:
 ```squirrel
@@ -762,7 +763,7 @@ The intended use is savegame serialization, but who knows.
 
 ```squirrel
 local onSerialize = cls.onSerialize;
-cls.onSerialize = function(_out) {
+cls.onSerialize = function (_out) {
     // Write to flags before save
     this.getFlags().set("mymod", Util.pack(this.m.MyMod))
     onSerialize(_out);
@@ -786,6 +787,21 @@ cls.onDeserialize = function(_out) {
 ```
 
 See more on serialization a [special piece on it](docs/savegames.md).
+
+
+# Experimental
+
+These things are coded and some even tested but not public yet, i.e. backward-compatibility is not guaranteed for them:
+
+```squirrel
+Table.getIn()
+Array.findBy()
+Flags.*
+Iter.*
+Packer.* // but accessible via Util.pack() and .unpack()
+Player.traitType()
+Rand.index(), .insert(), .itake()
+```
 
 
 # Feedback
