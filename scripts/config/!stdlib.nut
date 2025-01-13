@@ -16,6 +16,7 @@ if ("std" in getroottable() && ::std.version >= version) return;
 ::include("stdlib/player");
 ::include("stdlib/packer");
 ::include("stdlib/util");
+::include("stdlib/dev");
 
 local Text;
 Text = ::std.Text <- {

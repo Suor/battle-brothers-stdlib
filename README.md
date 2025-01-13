@@ -16,6 +16,7 @@ Or just a thing to take the place of lacking Squirrel/Battle Brothers standard l
     - [Actor](#actor)
     - [Player](#player)
     - [Debug Helpers](#debug-helpers)
+    - [Dev Utils](#dev-utils)
     - [Other Utils](#other-utils)
 - [Feedback](#feedback)
 - [Index](#index)
@@ -669,6 +670,47 @@ A way to make a dummy Debug object, usable to switch off and on debugging in you
 ```
 
 
+## Dev Utils
+
+These are targeted to be used as helpers during debugging your game or mods via [Dev Console][dev-console].
+
+#### `getNearestLocation()`
+
+Returns a nearest localtion.
+
+#### `showLocation(_typeId)`
+
+Uncovers location by its `TypeId`:
+
+```squirrel
+std.Dev.showLocation("location.witch_hut")
+```
+
+#### `getNearestTown()`
+
+Returns a nearest town.
+
+#### `rerollHires(_town = null)`
+
+Rerolls hires in the specified town, or in a nearest town if that is not specified.
+
+#### `fixItems()`
+
+Fix all items on all bros and in stash.
+
+#### `breakItems(_pct)`
+
+Sets condition of all items on bros and in stash to specified percantage. I.e. `Dev.breakItems(0.5)` will set everything to the half of their condition.
+
+#### `restoreRelations()`
+
+Restore relations with some noble house.
+
+#### `getEnemies(_name)`
+
+Returns a list of enemies with a specified name, usable only during combat.
+
+
 ## Other Utils
 
 #### `isNull(obj)`
@@ -810,6 +852,15 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`pp(data, options = {})`](#ppdata-options--)
     - [`with(options)`](#withoptions)
     - [`noop()`](#noop)
+- [Dev Utils](#dev-utils)
+    - [`getNearestLocation()`](#getnearestlocation)
+    - [`showLocation(_typeId)`](#showlocation_typeid)
+    - [`getNearestTown()`](#getnearesttown)
+    - [`rerollHires(_town = null)`](#rerollhires_town--null)
+    - [`fixItems()`](#fixitems)
+    - [`breakItems(_pct)`](#breakitems_pct)
+    - [`restoreRelations()`](#restorerelations)
+    - [`getEnemies(_name)`](#getenemies_name)
 - [Other Utils](#other-utils)
     - [`isNull(obj)`](#isnullobj)
     - [`isKindOf(obj, className)`](#iskindofobj-classname)
