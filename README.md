@@ -361,8 +361,8 @@ local num = Rand.poly(::World.getPlayerRoster().getAll().len(), 0.2);
 
 Create a new Rand with a replaced backend:
 ```squirrel
-local Rand = ::std.Rand.using(::rng);
-local Rand = ::std.Rand.using(::rng_new(seed));
+local Rand = ::std.Rand.using(::std.rng);
+local Rand = ::std.Rand.using(::std.rng_new(seed));
 ... use it as usual ...
 ```
 
