@@ -96,7 +96,7 @@ See also [Serialization for Humans](docs/savegames.md).
 
 Is compatible with everything. Does not modify the game only provides useful utilities. Is safe to add and remove at any time.
 
-Additionally, stdlib is guaranteed to be backwards compatible, i.e. it is always safe to upgrade it to a newer version. This covers all the functions and their params documented here, any pieces not metioned in this README may disappear or change. Also, the specific output of functions intended to be read by humans - several debug utils - are not covered by these guarantees.
+Additionally, stdlib is guaranteed to be backwards compatible, i.e. it is always safe to upgrade it to a newer version. This covers all the functions and their params documented here (except Dev Utils), any pieces not metioned in this README may disappear or change. Also, the specific output of functions intended to be read by humans - several debug utils - are not covered by these guarantees.
 
 stdlib does not depend on anything, however if [modhooks][] or [Modern Hooks][ModernHooks] are present then it will register itself, so you can declare a dependency like:
 ```squirrel
@@ -114,7 +114,7 @@ mod.require("stdlib >= 2.1");
 Note that all examples here assume namespaces are aliased locally, like `local Rand = ::std.Rand`. I find convenient to do so, but this is certainly not required, it's perfectly ok to just use `::std` namespace directly, i.e. `::std.Text.positive("+15%")`, which might make more sense if you only use it once or twice in a file. 
 
 > [!NOTE]  
-> This is a long doc. Click the contents icon in the top left corner to bring up TOC or "README.md" header itself to jump to the start. May also use `Ctrl+F` to jump to whatever you are looking for quickly. There is also the [Index](#index) in the end.
+> This is a long doc. Click the contents icon in the top right corner to bring up TOC or "README.md" header itself to jump to the start. May also use `Ctrl+F` to jump to whatever you are looking for quickly. There is also the [Index](#index) in the end.
 
 
 ## String Utils
@@ -673,6 +673,9 @@ A way to make a dummy Debug object, usable to switch off and on debugging in you
 ## Dev Utils
 
 These are targeted to be used as helpers during debugging your game or mods via [Dev Console][dev-console].
+
+**As such they are not covered by backward compatibility guarantees.** If you want to use something of this please contact me and I will consider moving it to an appropriate stable section.
+
 
 #### `getNearestLocation()`
 
