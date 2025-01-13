@@ -1,5 +1,4 @@
-dofile("tests/mocks.nut", true);
-dofile("scripts/!mods_preload/!stdlib.nut", true);
+dofile("load.nut", true);
 dofile("tests/helpers.nut", true);
 
 dofile("tests/test_core.nut", true);
