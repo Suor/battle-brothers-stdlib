@@ -1,9 +1,13 @@
 ::std.Array <- {
-    function concat(...){
+    function cat(aoa){
         local res = [];
-        foreach (arr in vargv) res.extend(arr);
+        foreach (arr in aoa) res.extend(arr);
         return res
     }
+    function concat(...){
+        return ::std.Array.cat(vargv);
+    }
+
     function all(arr, func) {
         foreach (item in arr) {
             if (!func(item)) return false;

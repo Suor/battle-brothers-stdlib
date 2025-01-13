@@ -369,7 +369,7 @@ local Rand = ::std.Rand.using(::rng_new(seed));
 
 ## Array
 
-#### `concat(...arrays)`
+#### `cat(arrays)`, `concat(...arrays)`
 
 Concatenates all the passed arrays into a single one.
 ```squirrel
@@ -781,7 +781,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`poly(tries, prob)`](#polytries-prob)
     - [`using(gen)`](#usinggen)
 - [Array](#array)
-    - [`concat(...arrays)`](#concatarrays)
+    - [`cat(arrays)`, `concat(...arrays)`](#catarrays-concatarrays)
     - [`all(arr, func)`](#allarr-func)
     - [`any(arr, func)`](#anyarr-func)
     - [`max(arr, key = null)`](#maxarr-key--null)
