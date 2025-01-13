@@ -12,10 +12,10 @@ local Util = ::std.Util;
         }
         return loc;
     }
-    function showLocaltion(_id) {
+    function showLocation(_typeId) {
         local locations = this.World.EntityManager.getLocations()
         foreach (location in locations) {
-            if (location.getID() == _id) {
+            if (location.getTypeID() == _typeId) {
                 this.World.uncoverFogOfWar(location.getTile().Pos, 200);
                 location.setDiscovered(true);
                 location.getSprite("selection").Visible = true;
@@ -37,7 +37,7 @@ local Util = ::std.Util;
     }
     function rerollHires(_town = null) {
         if (_town == null) _town = this.getNearestTown();
-        else if (typeof _town == "string") _town = ::getTown();
+        else if (typeof _town == "string") _town = ::getTown(_town);
 
         ::logInfo("Rerolling hires in " + _town.getName());
         _town.resetRoster()
@@ -45,8 +45,14 @@ local Util = ::std.Util;
     }
 
     function fixItems() {
+        this.breakItems(null);
+    }
+    function breakItems(_pct) {
         local function fixAll(items) {
-            foreach (item in items) item.setCondition(item.getConditionMax());
+            foreach (item in items) {
+                local max = item.getConditionMax();
+                item.setCondition(_pct == null ? max : (max * _pct).tointeger());
+            }
         }
         foreach (bro in World.getPlayerRoster().getAll()) fixAll(bro.getItems().getAllItems())
         fixAll(Stash.getItems())
@@ -66,5 +72,11 @@ local Util = ::std.Util;
             }
             break;
         }
+    }
+
+    // Combat
+    function getEnemies(_name) {
+        local ops = getBro().getAIAgent().getKnownOpponents();
+        return ops.map(@(r) r.Actor).filter(@(_, a) a.getName() == _name);
     }
 }
