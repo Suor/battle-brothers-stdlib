@@ -13,6 +13,16 @@ local Iter = ::std.Iter <- {
         }
         return result;
     }
+    function chunks(n, seq) {
+        local l = seq.len();
+        for (local i = 0; i < l; i += n)
+            yield seq.slice(i, i + n < l ? i + n : l);
+    }
+    function toArray(it) {
+        local result = [];
+        foreach (item in it) result.push(item);
+        return result;
+    }
 }
 
 // Lower level random number generator. Can be used as an alternative to Math.rand() to not move

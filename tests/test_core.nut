@@ -1,4 +1,4 @@
-local Str = ::std.Str, Re = ::std.Re, Text = ::std.Text,
+local Str = ::std.Str, Re = ::std.Re, Text = ::std.Text, Iter = ::std.Iter,
     Debug = ::std.Debug, Util = ::std.Util, Array = ::std.Array, Table = ::std.Table;
 
 // Str
@@ -67,6 +67,10 @@ assertEq(Array.max(["b" "x" "a" "k"]), "x")
 assertEq(Array.min(["b" "x" "a" "k"]), "a")
 assertEq(Array.max(["ab" "xyz" "ijkl" "stu"], @(x) x.len()), "ijkl")
 assertEq(Array.min(["ab" "xyz" "ijkl" "stu"], @(x) x.len()), "ab")
+
+// Iter
+assertEq(Iter.toArray(Iter.chunks(2, "12345")), ["12" "34" "5"]);
+assertEq(Iter.toArray(Iter.chunks(2, [1 2 3 4 5])), [[1 2], [3 4], [5]]);
 
 // Table
 assertEq(Table.keys({}), [])
