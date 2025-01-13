@@ -149,12 +149,13 @@ local short = Str.cutprefix(_entity.getName(), "Ancient ");
 
 If a given string ends with `suffix` then returns the string with the suffix cut. Otherwise returns the whole string.
 
-#### `split(sep, s)`
+#### `split(sep, s, count = inf)`
 
-Split a string with the given separator:
+Split a string with the given separator, up to `count` times:
 
 ```squirrel
-Str.split(", ", "Hi, there")  # ["Hi", "there"]
+Str.split(", ", "Hi, there, guys")     # ["Hi", "there", "guys"]
+Str.split(", ", "Hi, there, guys", 1)  # ["Hi", "there, guys"]
 ```
 
 #### `join(sep, strings)`
@@ -489,6 +490,7 @@ Checks whether actor is not null, alive and not dying.
 
 Same as above plus `isPlacedOnMap()`. The best thing to use on potential enemies and allies in AI code or skill targeting code. In most cases trying to operate with an entity not passing this will result in a crash.
 
+
 ## Player
 
 #### `giveLevels(player, num)`
@@ -756,7 +758,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`endswith(str, suffix)`](#endswithstr-suffix)
     - [`cutprefix(str, prefix)`](#cutprefixstr-prefix)
     - [`cutsuffix(str, suffix)`](#cutsuffixstr-suffix)
-    - [`split(sep, s)`](#splitsep-s)
+    - [`split(sep, s, count = inf)`](#splitsep-s-count--inf)
     - [`join(sep, strings)`](#joinsep-strings)
     - [`replace(str, old, new, [count])`](#replacestr-old-new-count)
 - [Regular Expressions](#regular-expressions)
