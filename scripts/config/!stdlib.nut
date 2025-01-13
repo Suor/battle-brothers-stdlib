@@ -15,6 +15,7 @@ if ("std" in getroottable() && ::std.version >= version) return;
 ::include("stdlib/actor");
 ::include("stdlib/player");
 ::include("stdlib/packer");
+::include("stdlib/flags");
 ::include("stdlib/util");
 ::include("stdlib/dev");
 
