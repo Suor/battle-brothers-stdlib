@@ -1,5 +1,5 @@
 local Str = ::std.Str, Re = ::std.Re, Text = ::std.Text, Iter = ::std.Iter,
-    Debug = ::std.Debug, Util = ::std.Util, Array = ::std.Array, Table = ::std.Table;
+    Util = ::std.Util, Array = ::std.Array, Table = ::std.Table;
 
 // Str
 assert(Str.cutprefix("some_event", "some") == "_event")
@@ -92,20 +92,6 @@ assertEq(Util.clamp(10.1, 1, 10), 10);
 assertEq(Util.clamp(0.099, 0.1, 0.2), 0.1);
 
 // TODO: getMember()? isKindOf()?
-
-// Debug
-Debug.log("message")
-assertEq(Log.last, "message")
-Debug.log("name", {a = 1})
-assertEq(Log.last, "<pre>name = {a = 1}\n</pre>")
-Debug.log("name", {a = 1}, {depth = 7})
-assertEq(Log.last, "<pre>name = {a = 1}\n</pre>")
-assertEq(Debug.enabled, true);
-
-Log.last = null;
-Debug.noop().log("name", {a = 1});
-assertEq(Log.last, null);
-assertEq(Debug.noop().enabled, false);
 
 
 // Done

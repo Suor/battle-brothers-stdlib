@@ -11,7 +11,7 @@ local function indent(level, s) {
 
 local Debug;
 Debug = ::std.Debug <- {
-    DEFAULTS = {prefix = "", width = 100, depth = 3, funcs = "count", filter = null}
+    DEFAULTS = {prefix = "", width = 100, depth = 3, funcs = "count", filter = null, re = null}
 
     // Pretty print a data structure. Options:
     //     width   max line width in chars
@@ -20,7 +20,7 @@ Debug = ::std.Debug <- {
     //     filter  only show keys containing this string
     // See option defaults above.
     function pp(data, _opts = {}, _level = 0, _prepend = "") {
-        if (_level == 0) _opts = this._interpret(_opts)
+        if (_level == 0) _opts = Util.merge(this.DEFAULTS, this._interpret([_opts]));
 
         local startln = (_level == 0 ? _opts.prefix + _prepend : "");
         local endln = (_level == 0 ? "\n" : "");
@@ -107,10 +107,14 @@ Debug = ::std.Debug <- {
         }
     }
 
-    function _interpret(_opts) {
-        if (typeof _opts == "integer") _opts = {depth = _opts};
-        if (typeof _opts == "string") _opts = {filter = _opts};
-        return Util.merge(this.DEFAULTS, _opts);
+    function _interpret(_optValues) {
+        local opts = {};
+        foreach (val in _optValues) {
+            if (typeof val == "integer") opts.depth <- val;
+            if (typeof val == "string") opts.filter <- val;
+            if (typeof val == "table") Util.extend(opts, val);
+        }
+        return opts;
     }
 
     function log(name, ...) {
@@ -120,7 +124,7 @@ Debug = ::std.Debug <- {
             return;
         }
         local data = vargv[0];
-        local opts = vargv.len() >= 2 ? vargv[1] : {};
+        local opts = this._interpret(vargv.slice(1));
         ::logInfo("<pre>" + this.pp(data, opts, 0, name + " = ") + "</pre>");
     }
 
@@ -141,8 +145,6 @@ Debug = ::std.Debug <- {
     }
 }
 
-// TODO: sort indexes
-// TODO: add filter
-::std.debug <- function(data, _opts = {}) {
-    this.logInfo("<pre>" + Debug.pp(data, _opts) + "</pre>")
+::std.debug <- function (data, ...) {
+    this.logInfo("<pre>" + Debug.pp(data, Debug._interpret(vargv)) + "</pre>")
 }
