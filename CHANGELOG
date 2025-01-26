@@ -1,3 +1,17 @@
+2.3
+- added Table.filter(), .map(), .mapKeys(), .mapValues() and .apply()
+- added Dev utils
+- added Util.round()
+- allow several arguments for options in Debug.log() and std.debug()
+- added Array.cat()
+- documented Str.split()
+- moved things scripts/config/, so all the stuff is available earlier
+- updated play and bench templates
+Experimental:
+- added Flags.*
+- added Iter.chunks() and Iter.toArray()
+- list experimental stuff in README
+
 2.2
 - added Str.split()
 - added Re.escape()
