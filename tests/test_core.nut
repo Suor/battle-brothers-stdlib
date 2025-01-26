@@ -91,6 +91,13 @@ assertEq(Util.clamp(-1, 1, 10), 1);
 assertEq(Util.clamp(10.1, 1, 10), 10);
 assertEq(Util.clamp(0.099, 0.1, 0.2), 0.1);
 
+assertEq(Util.round(1.1), 1);
+assertEq(Util.round(1.6), 2);
+assertEq(Util.round(1.11, 1), 1.1);
+assertEq(Util.round(1.117, 2), 1.12);
+assertEq(Util.round(123, -1), 120);
+assertEq(Util.round(375, -2), 400);
+
 // TODO: getMember()? isKindOf()?
 
 

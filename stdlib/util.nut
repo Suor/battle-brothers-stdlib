@@ -16,6 +16,15 @@ Table.extend(Util, {
     function clamp(value, min, max) {
         return value >= max ? max : value <= min ? min : value;
     }
+    function round(_value, _ndigits = 0) {
+        if (_ndigits >= 0) {
+            local factor = ::pow(10, _ndigits);
+            return ::Math.round(_value * factor) / factor;
+        } else {
+            local factor = ::pow(10, -_ndigits);
+            return ::Math.round(_value / factor) * factor;
+        }
+    }
 
     function isNull(_obj) {
         return _obj == null || (_obj instanceof ::WeakTableRef && _obj.isNull());

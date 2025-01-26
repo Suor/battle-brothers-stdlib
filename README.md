@@ -798,6 +798,16 @@ Boxes a given value into `[min, max]` bounds.
 this.m.Hitpoints = Util.clamp(this.m.Hitpoints + change, 0, this.m.HitpointsMax);
 ```
 
+#### `round(value, ndigits = null)`
+
+Rounds a number to `ndigits` precision after the decimal point. If `ndigits` is omitted, it returns the nearest integer. If `ndigits` is negative then the value is rounded to `10 ^ -ndigits`:
+
+```squirrel
+Util.round(23.167, 1)  // 23.2
+Util.round(23.167)     // 23
+Util.round(23.167, -1) // 20
+```
+
 #### `deepEq(a, b)`
 
 Compares given two values recursively, i.e. tables and arrays are compared by their contents not referencial equality.
@@ -938,6 +948,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`isIn(key, obj)`](#isinkey-obj)
     - [`getMember(obj, key)`](#getmemberobj-key)
     - [`clamp(value, min, max)`](#clampvalue-min-max)
+    - [`round(value, ndigits = null)`](#roundvalue-ndigits--null)
     - [`deepEq(a, b)`](#deepeqa-b)
     - [`pack(data)`](#packdata)
     - [`unpack(data)`](#unpackdata)
