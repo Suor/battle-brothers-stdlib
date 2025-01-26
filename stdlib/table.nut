@@ -53,11 +53,32 @@
         }
     }
 
-    // TODO:
-    //    apply()
-    //    map()
-    //    filter()
-    //    each()
-    //    mapKeys()
-    //    mapValues()
+    function filter(_table, _func) {
+        local res = {};
+        foreach (k, v in _table) {
+            if (_func(k, v)) res[k] <- v;
+        }
+        return res;
+    }
+    function map(_table, _func) {
+        local res = {};
+        foreach (k, v in _table) {
+            local pair = _func(k, v);
+            res[pair[0]] <- pair[1]
+        }
+        return res;
+    }
+    function apply(_table, _func) {
+        foreach (k, v in _table) _table[k] <- _func(k, v);
+    }
+    function mapKeys(_table, _func) {
+        local res = {};
+        foreach (k, v in _table) res[_func(k, v)] <- v;
+        return res;
+    }
+    function mapValues(_table, _func) {
+        local res = {};
+        foreach (k, v in _table) res[k] <- _func(k, v);
+        return res;
+    }
 }

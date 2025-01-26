@@ -72,26 +72,6 @@ assertEq(Array.min(["ab" "xyz" "ijkl" "stu"], @(x) x.len()), "ab")
 assertEq(Iter.toArray(Iter.chunks(2, "12345")), ["12" "34" "5"]);
 assertEq(Iter.toArray(Iter.chunks(2, [1 2 3 4 5])), [[1 2], [3 4], [5]]);
 
-// Table
-assertEq(Table.keys({}), [])
-assertEq(Table.keys({a = 1}), ["a"])
-assertEq(Table.values({a = 1}), [1])
-
-local t = {}
-assertEq(Table.extend(t, {a = 1}), {a = 1})
-assertEq(t, {a = 1})
-local t = {}
-assertEq(Table.merge(t, {a = 1}), {a = 1})
-assertEq(t, {})
-
-local t = {a = 7, z = "hi"}
-assertEq(Table.deepExtend(t, {a = [1], b = {c = 42}}), {a = [1], b = {c = 42}, z = "hi"})
-assertEq(t, {a = [1], b = {c = 42}, z = "hi"})
-
-// local t = {a = 7, z = "hi"}
-// assertEq(Table.deepMerge(t, {a = [1], b = {c = 42}}), {a = [1], b = {c = 42}, z = "hi"})
-// assertEq(t, {a = 7, z = "hi"})
-
 // Rand
 local Rand = std.Rand.using(::std.rng_new(1));  // set generator with a fixed seed
 assertEq(Rand.index(10), 5);

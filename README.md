@@ -444,6 +444,53 @@ Returns an array of table keys.
 
 Returns an array of table values.
 
+#### `filter(table, func)`
+
+Creates a table with key value pairs filtered by the given function:
+
+```squirrel
+// Drop non-positive chances
+local options = Table.filter({...}, @(_, v) v > 0)
+
+// Print out all flags
+std.debug(Table.filter(bro.m, @(k, _) Str.startswith(k, "Is")))
+```
+
+
+#### `map(table, func)`
+
+Transforms table keys and values creating a new table. E.g. here how we can flip a table:
+
+```squirrel
+Table.map(table, @(k, v) [v k])
+```
+
+#### `mapValues(table, func)`
+
+Transforms table values creating a new table:
+
+```squirrel
+// Fix expected damage for split_man
+hmod.hook("scripts/skills/actives/split_man", function (q) {
+    q.getExpectedDamage = @(__original) function (_target) {
+        return Table.mapValues(__original(_target), @(k, v) v * 1.5;
+    }
+}
+```
+
+#### `mapKeys(table, func)`
+
+Transforms table values creating a new table.
+
+#### `apply(table, func)`
+
+Sets table values to a result of the given func:
+
+```squirrel
+// Double all damage in HitInfo record, not
+Table.apply(hitinfo, @(k, v) Str.startswith(k, "Damage") ? v*2 : v)
+```
+
 #### `extend(dst, src)`
 
 Extends `dst` table with key, value pairs from `src`. Any existing keys are overwritten. Returns the `dst` table.
@@ -852,6 +899,11 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`get(table, key, def = null)`](#gettable-key-def--null)
     - [`keys(table)`](#keystable)
     - [`values(table)`](#valuestable)
+    - [`filter(table, func)`](#filtertable-func)
+    - [`map(table, func)`](#maptable-func)
+    - [`mapValues(table, func)`](#mapvaluestable-func)
+    - [`mapKeys(table, func)`](#mapkeystable-func)
+    - [`apply(table, func)`](#applytable-func)
     - [`extend(dst, src)`](#extenddst-src)
     - [`merge(table1, table2)`](#mergetable1-table2)
     - [`setDefaults(dst, defaults)`](#setdefaultsdst-defaults)
