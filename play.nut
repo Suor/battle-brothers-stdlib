@@ -1,6 +1,6 @@
 dofile("load.nut", true);
 local Str = ::std.Str, Re = ::std.Re, Rand = ::std.Rand, Debug = ::std.Debug, Util = ::std.Util,
-    Text = ::std.Text, Array = ::std.Array, Table = ::std.Table,
+    Text = ::std.Text, Array = ::std.Array, Table = ::std.Table, Iter = ::std.Iter,
     Actor = ::std.Actor, Packer = ::std.Packer;
 
 local function pprint(_val) {
