@@ -17,7 +17,7 @@ local Packer = ::std.Packer, Iter = ::std.Iter;
     }
     function unpack(_flags, _key) {
         local packed = _flags.get(_key);
-        if (packed == null) return null;
+        if (packed == false) return null;
         if (typeof packed != "string")
             throw "Expected packed string at key " + _key + ", got " + typeof packed;
 
