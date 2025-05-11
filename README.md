@@ -634,6 +634,16 @@ Debug.log("bro", _player, {filter = "Level", depth = 4});
 
 See also [`Debug.with()`](#withoptions)
 
+#### `logRepr(name, value, options = {})`
+
+Same as `Debug.log()` but uses concise representations for actors, skills and tiles.
+
+```squirrel
+// Print out easy to read list of targets and skills
+options.push({target = best.Target, skill = s, score = best.Score});
+Debug.logRepr("options", options);
+```
+
 #### `::std.debug(data, options = {})`
 
 A quick way to pretty print data to a log. Same as above, but doesn't have name param and associated `<name> = ` prefix. Very handy in [Dev Console][dev-console]:
@@ -661,8 +671,13 @@ Formats data into a pretty printed string, i.e. with text wrapped and indented p
     - "full" - prints "name = (function : 0x...)" for each function
     - "count" - print a total number of functions for table
     - false - skip functions
+- `repr` - use concise representations for actors, skills and tiles, defaults to false
 
 Note that HTML ignores whitespace by default so `::logInfo(Debug.pp(data))` will not show up pretty when you open log.html in your browser, see `Debug.log()` and `::std.debug()` above.
+
+#### `repr(data, options = {})`
+
+A shortcut for `Debug.pp()` with `repr` set to `true`.
 
 #### `with(options)`
 
@@ -929,8 +944,10 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`addTraits(player, num, opts = null)`](#addtraitsplayer-num-opts--null)
 - [Debug Helpers](#debug-helpers)
     - [`log(name, [value, options = {}])`](#logname-value-options--)
+    - [`logRepr(name, value, options = {})`](#logreprname-value-options--)
     - [`::std.debug(data, options = {})`](#stddebugdata-options--)
     - [`pp(data, options = {})`](#ppdata-options--)
+    - [`repr(data, options = {})`](#reprdata-options--)
     - [`with(options)`](#withoptions)
     - [`noop()`](#noop)
 - [Dev Utils](#dev-utils)

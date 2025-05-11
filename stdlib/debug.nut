@@ -9,15 +9,36 @@ local function indent(level, s) {
     return format("%"+ (level * 4) + "s", "") + s;
 }
 
+local function isTile(_obj) {
+    return "__getTable" in _obj && "X" in _obj.__getTable && "Y" in _obj.__getTable;
+}
+
 local Debug;
 Debug = ::std.Debug <- {
-    DEFAULTS = {prefix = "", width = 100, depth = 3, funcs = "count", filter = null, re = null}
+    // TODO: re filter?
+    DEFAULTS = {prefix = "", width = 100, depth = 3, funcs = "count", filter = null, repr = false}
+
+    reprs = {
+        function actor(_a) {
+            local s = _a.getName();
+            if (_a.isPlacedOnMap()) s += " at " + tile(_a.getTile())
+            return s;
+        }
+        function skill(_s) {return _s.ClassName}
+        function tile(_t) {return _t.X + ", " + _t.Y}
+    }
+    function _guessType(_obj) {
+        if (Util.isKindOf(_obj, "skill")) return "skill";
+        else if (Util.isKindOf(_obj, "actor")) return "actor";
+        else if (isTile(_obj)) return "tile";
+    }
 
     // Pretty print a data structure. Options:
     //     width   max line width in chars
     //     depth   max depth to show
     //     funcs   how functions should be shown ("count" | "full" | false)
     //     filter  only show keys containing this string
+    //     repr    concise reprs for actor, skill, tile
     // See option defaults above.
     function pp(data, _opts = {}, _level = 0, _prepend = "") {
         if (_level == 0) _opts = Util.merge(this.DEFAULTS, this._interpret([_opts]));
@@ -39,6 +60,11 @@ Debug = ::std.Debug <- {
         local function isEmpty(v, vpp) {
             return (typeof v != "table" || vpp == "{}" || vpp == "{...}")
                 && (typeof v != "array" || vpp == "[]" || vpp == "[...]")
+        }
+
+        if (_opts.repr) {
+            local type = _guessType(data);
+            if (type != null) return startln + reprs[type](data) + endln;
         }
 
         local cls = null;
@@ -107,6 +133,10 @@ Debug = ::std.Debug <- {
         }
     }
 
+    function repr(data, _opts = {}) {
+        return pp(data, Util.merge(_opts, {repr = true}));
+    }
+
     function _interpret(_optValues) {
         local opts = {};
         foreach (val in _optValues) {
@@ -126,6 +156,12 @@ Debug = ::std.Debug <- {
         local data = vargv[0];
         local opts = this._interpret(vargv.slice(1));
         ::logInfo("<pre>" + this.pp(data, opts, 0, name + " = ") + "</pre>");
+    }
+
+    function logRepr(_name, _val, ...) {
+        local opts = this._interpret(vargv);
+        opts.repr <- true;
+        log(_name, _val, opts);
     }
 
     // Create a new Debug with changed default options:
