@@ -15,6 +15,7 @@ Or just a thing to take the place of lacking Squirrel/Battle Brothers standard l
     - [Table](#table)
     - [Actor](#actor)
     - [Player](#player)
+    - [Tile](#tile)
     - [Debug Helpers](#debug-helpers)
     - [Dev Utils](#dev-utils)
     - [Other Utils](#other-utils)
@@ -589,6 +590,26 @@ Player.addTraits(_player, 2, {soso = false})
 Returns a list of traits added, i.e. actual BB objects.
 
 
+## Tile
+
+#### `iterAdjacent(tile)`
+
+Iterates tiles adjacent to the given one. Often helpful in AI or skill code.
+
+#### `iterAdjacentActors(tile)`
+
+Iterates actors around the given tile.
+
+```squirrel
+// Count allies and enemies around
+local allies = 0, enemies = 0;
+foreach (actor in stdTile.iterAdjacentActors(targetTile)) {
+    if (_entity.isAlliedWith(_entity)) allies++;
+    else enemies++;
+}
+```
+
+
 ## Debug Helpers
 
 #### `log(name, [value, options = {}])`
@@ -942,6 +963,9 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`clearTalents(player)`](#cleartalentsplayer)
     - [`addTalents(player, num, opts = null)`](#addtalentsplayer-num-opts--null)
     - [`addTraits(player, num, opts = null)`](#addtraitsplayer-num-opts--null)
+- [Tile](#tile)
+    - [`iterAdjacent(tile)`](#iteradjacenttile)
+    - [`iterAdjacentActors(tile)`](#iteradjacentactorstile)
 - [Debug Helpers](#debug-helpers)
     - [`log(name, [value, options = {}])`](#logname-value-options--)
     - [`logRepr(name, value, options = {})`](#logreprname-value-options--)
