@@ -107,7 +107,6 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
         "trait.ailing"
         "trait.asthmatic"
         "trait.bleeder"
-        "trait.brute"
         "trait.clubfooted"
         "trait.clumsy"
         "trait.cocky"
@@ -130,10 +129,15 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
         "trait.short_sighted"
         "trait.superstitious"
         // Legends
-        "trait.fear_nobles"
-        "trait.frail"
+        "trait.legend_fear_nobles"
+        "trait.legend_frail"
         "trait.legend_appetite_donkey"
         "trait.legend_fear_dark"
+        "trait.legend_predictable"
+        "trait.legend_slack"
+        // Legends 18-
+        "trait.fear_nobles"
+        "trait.frail"
         "trait.predictable"
         "trait.slack"
     ]
@@ -144,9 +148,14 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
         "trait.huge"
         "trait.tiny"
         "trait.paranoid"
+        "trait.brute"
         // Legends
-        "trait.aggressive"
+        "trait.legend_aggressive"
         "trait.legend_diurnal"
+        "trait.legend_light"
+        "trait.legend_double_tongued"
+        // Legends 18-
+        "trait.aggressive"
         "trait.light"
         "trait.double_tongued"
     ]

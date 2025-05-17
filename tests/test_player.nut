@@ -128,7 +128,7 @@ Player.addTraits(player, 3)
 assertSkillsNum(3)
 
 // Stupid mode
-rng.reset(77);
+rng.reset(97);
 Player.addTraits(player, 1, {bad = false, stupid = true})
 assertSkillsNum(4)
 print("Player: traits OK\n");
