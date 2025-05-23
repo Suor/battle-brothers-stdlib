@@ -6,7 +6,14 @@ SHELL := /bin/bash
 
 .ONESHELL:
 test:
-	@squirrel tests/test.nut
+	@if [[ -f "tests/test.nut" ]]; then
+		TMP_FILE=$$(mktemp);
+		squirrel tests/test.nut 2> >(tee "$$TMP_FILE" >&2);
+		if [ -s "$$TMP_FILE" ]; then
+			rm "$$TMP_FILE"
+			exit 1
+		fi
+	fi
 
 zip: check-compile test
 	@LAST_TAG=$$(git tag | tail -1);
