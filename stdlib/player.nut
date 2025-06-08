@@ -197,4 +197,29 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
         }
         return changes;
     }
+
+    function removePermanentInjury(_player, _id = null) {
+        local injury;
+        if (_id) injury = _player.getSkills().getSkillByID(_id);
+        else {
+            local injuries = _player.getSkills().query(::Const.SkillType.PermanentInjury);
+            if (injuries.len() == 0) return;
+            injury = Rand.choice(injuries).get(); // .query() returns weakrefs
+        }
+        if (!injury) return;
+
+        _player.getSkills().remove(injury);
+
+        _player.getSprite("permanent_injury_1").Visible = false;
+        _player.getSprite("permanent_injury_2").Visible = false;
+        _player.getSprite("permanent_injury_3").Visible = false;
+        _player.getSprite("permanent_injury_4").Visible = false;
+        _player.getSprite("permanent_injury_1").resetBrush();
+        _player.getSprite("permanent_injury_2").resetBrush();
+        _player.getSprite("permanent_injury_3").resetBrush();
+        _player.getSprite("permanent_injury_4").resetBrush();
+        _player.updateInjuryVisuals()
+
+        return injury;
+    }
 }

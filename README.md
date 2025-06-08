@@ -589,6 +589,16 @@ Player.addTraits(_player, 2, {soso = false})
 
 Returns a list of traits added, i.e. actual BB objects.
 
+#### removePermanentInjury(_player[, _id])
+
+Removes a permanent injury from the bro and returns it, if id is not passed then removes a random one. Correctly updates player visuals:
+
+```squirrel
+local injury = ::std.Player.removePermanentInjury(_player);
+if (!injury) return;
+// ... notify player
+```
+
 
 ## Tile
 
@@ -963,6 +973,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`clearTalents(player)`](#cleartalentsplayer)
     - [`addTalents(player, num, opts = null)`](#addtalentsplayer-num-opts--null)
     - [`addTraits(player, num, opts = null)`](#addtraitsplayer-num-opts--null)
+    - [removePermanentInjury\(_player\[, _id\]\)](#removepermanentinjury_player-_id)
 - [Tile](#tile)
     - [`iterAdjacent(tile)`](#iteradjacenttile)
     - [`iterAdjacentActors(tile)`](#iteradjacentactorstile)
