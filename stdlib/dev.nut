@@ -1,7 +1,7 @@
 local Util = ::std.Util;
 
 ::std.Dev <- {
-    function getNearestLocation() {
+    function getLocation() {
         local locations = World.EntityManager.getLocations();
         local playerTile = this.World.State.getPlayer().getTile();
         local distance = 99999;
@@ -25,7 +25,7 @@ local Util = ::std.Util;
         }
     }
 
-    function getNearestTown() {
+    function getTown() {
         local towns = ::World.EntityManager.getSettlements();
         local playerTile = ::World.State.getPlayer().getTile();
         local town, distance = 99999;
@@ -36,7 +36,7 @@ local Util = ::std.Util;
         return town
     }
     function rerollHires(_town = null) {
-        if (_town == null) _town = this.getNearestTown();
+        if (_town == null) _town = this.getTown();
         else if (typeof _town == "string") _town = ::getTown(_town);
 
         ::logInfo("Rerolling hires in " + _town.getName());
@@ -80,3 +80,5 @@ local Util = ::std.Util;
         return ops.map(@(r) r.Actor).filter(@(_, a) a.getName() == _name);
     }
 }
+::std.Dev.getNearestTown <- ::std.Dev.getTown;
+::std.Dev.getNearestLocation <- ::std.Dev.getLocation;

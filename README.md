@@ -761,7 +761,7 @@ These are targeted to be used as helpers during debugging your game or mods via 
 **As such they are not covered by backward compatibility guarantees.** If you want to use something of this please contact me and I will consider moving it to an appropriate stable section.
 
 
-#### `getNearestLocation()`
+#### `getLocation()`
 
 Returns a nearest localtion.
 
@@ -773,7 +773,7 @@ Uncovers location by its `TypeId`:
 std.Dev.showLocation("location.witch_hut")
 ```
 
-#### `getNearestTown()`
+#### `getTown()`
 
 Returns a nearest town.
 
@@ -975,9 +975,9 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`with(options)`](#withoptions)
     - [`noop()`](#noop)
 - [Dev Utils](#dev-utils)
-    - [`getNearestLocation()`](#getnearestlocation)
+    - [`getLocation()`](#getlocation)
     - [`showLocation(_typeId)`](#showlocation_typeid)
-    - [`getNearestTown()`](#getnearesttown)
+    - [`getTown()`](#gettown)
     - [`rerollHires(_town = null)`](#rerollhires_town--null)
     - [`fixItems()`](#fixitems)
     - [`breakItems(_pct)`](#breakitems_pct)
