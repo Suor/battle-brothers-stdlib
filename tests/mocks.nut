@@ -284,11 +284,14 @@ function startswith(s, sub) {
     ]
 ];
 
-
-::Log <- {full = [], last = null}
-::logInfo <- function(s) {
-    // ::Log.full.push(s);
-    ::Log.last = s;
+::logInfo <- function (_s) {
+    print(_s + "\n")
+}
+::logWarning <- function (_s) {
+    print("WARN: " + _s + "\n")
+}
+::logError <- function (_s) {
+    print("ERR: " + _s + "\n")
 }
 
 class WeakTableRef {

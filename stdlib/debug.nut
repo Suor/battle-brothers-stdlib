@@ -13,10 +13,40 @@ local function isTile(_obj) {
     return "__getTable" in _obj && "X" in _obj.__getTable && "Y" in _obj.__getTable;
 }
 
-local Debug;
+local EMPTY = {}, Debug;
 Debug = ::std.Debug <- {
     // TODO: re filter?
-    DEFAULTS = {prefix = "", width = 100, depth = 3, funcs = "count", filter = null, repr = false}
+    DEFAULTS = {
+        level = "info"  // "warning", "error"
+        html = true     // escape html tags and wrap in <pre>
+        prefix = ""
+        trace = false   // add "filename:lineno in func()"
+        width = 100     // max line width in chars
+        depth = 3       // max depth to show
+        funcs = "count" // how functions should be shown: "count" | "full" | false
+        filter = null   // only show keys containing this string
+        repr = false    // concise reprs for actor, skill, tile
+    }
+
+    function log(_name, ...) {
+        if (vargv.len() == 0) return _out(_name, EMPTY, DEFAULTS);
+        _out(_name, vargv[0], _interpret(vargv.slice(1)));
+    }
+    function logRepr(_name, _data, ...) {
+        _out(_name, _data, Util.extend(_interpret(vargv), {repr = true}));
+    }
+    function trace(_name, ...) {
+        if (vargv.len() == 0) return _out(_name, EMPTY, _interpret([{trace = true}]));
+        _out(_name, vargv[0], Util.extend(_interpret(vargv.slice(1)), {trace = true}));
+    }
+
+    // Pretty print a data structure
+    function pp(data, ...) {
+        return _pp(data, _interpret(vargv));
+    }
+    function repr(data, ...) {
+        return _pp(data, Util.extend(_interpret(vargv), {repr = true}));
+    }
 
     reprs = {
         function actor(_a) {
@@ -33,16 +63,7 @@ Debug = ::std.Debug <- {
         else if (isTile(_obj)) return "tile";
     }
 
-    // Pretty print a data structure. Options:
-    //     width   max line width in chars
-    //     depth   max depth to show
-    //     funcs   how functions should be shown ("count" | "full" | false)
-    //     filter  only show keys containing this string
-    //     repr    concise reprs for actor, skill, tile
-    // See option defaults above.
-    function pp(data, _opts = {}, _level = 0, _prepend = "") {
-        if (_level == 0) _opts = Util.merge(this.DEFAULTS, this._interpret([_opts]));
-
+    function _pp(data, _opts = {}, _level = 0, _prepend = "") {
         local startln = (_level == 0 ? _opts.prefix + _prepend : "");
         local endln = (_level == 0 ? "\n" : "");
 
@@ -97,12 +118,12 @@ Debug = ::std.Debug <- {
                     if (_opts.funcs != "full") continue;
                 }
                 local vpp;
-                if (_opts.filter && (k + "").find(_opts.filter) != null) {
-                    vpp = Debug.pp(v, Util.merge(_opts, {filter = null}), _level + 1, k + " = ")
+                if (_opts.filter && _opts.filter(k, v)) {
+                    vpp = _pp(v, Util.merge(_opts, {filter = null}), _level + 1, k + " = ")
                 } else {
-                    vpp = Debug.pp(v, _opts, _level + 1, k + " = ");
+                    vpp = _pp(v, _opts, _level + 1, k + " = ");
                 }
-                if (_opts.filter && isEmpty(v, vpp) && (k + "").find(_opts.filter) == null) {
+                if (_opts.filter && isEmpty(v, vpp) && !_opts.filter(k, v)) {
                     skipped++; continue;
                 };
                 items.push(k + " = " + vpp)
@@ -118,7 +139,7 @@ Debug = ::std.Debug <- {
 
             local items = [], skipped = 0;
             foreach (v in data) {
-                local vpp = Debug.pp(v, _opts, _level + 1);
+                local vpp = _pp(v, _opts, _level + 1);
                 if (_opts.filter && isEmpty(v, vpp)) {skipped++; continue;};
                 items.push(vpp)
             }
@@ -133,10 +154,6 @@ Debug = ::std.Debug <- {
         }
     }
 
-    function repr(data, _opts = {}) {
-        return pp(data, Util.merge(_opts, {repr = true}));
-    }
-
     function _interpret(_optValues) {
         local opts = {};
         foreach (val in _optValues) {
@@ -144,43 +161,65 @@ Debug = ::std.Debug <- {
             if (typeof val == "string") opts.filter <- val;
             if (typeof val == "table") Util.extend(opts, val);
         }
-        return opts;
-    }
-
-    function log(name, ...) {
-        // data, _opts
-        if (vargv.len() == 0) {
-            ::logInfo(this.DEFAULTS.prefix + name);
-            return;
+        if ("filter" in opts && typeof opts.filter == "string") {
+            local substr = opts.filter;
+            opts.filter = @(k, v) (k + "").find(substr) != null;
         }
-        local data = vargv[0];
-        local opts = this._interpret(vargv.slice(1));
-        ::logInfo("<pre>" + this.pp(data, opts, 0, name + " = ") + "</pre>");
+        return opts.setdelegate(DEFAULTS);
     }
 
-    function logRepr(_name, _val, ...) {
-        local opts = this._interpret(vargv);
-        opts.repr <- true;
-        log(_name, _val, opts);
+    function _out(_name, _data, _opts) {
+        local s, trace = "";
+        // if (_opts != DEFAULTS) _opts = Util.merge(DEFAULTS, _opts);
+
+        if (_opts.trace) {
+            local si = ::getstackinfos(3);
+            trace = format("%s:%i in %s(): ", si.src, si.line, si.func == "unknown" ? "" : si.func);
+        }
+
+        if (_data == EMPTY) {
+            local val = _opts.prefix + trace + _name;
+            s = _opts.html ? Str.escapeHTML(val) : val;
+        } else {
+            local val = _pp(_data, _opts, 0, trace + (_name != EMPTY ? _name + " = " : ""));
+            s = _opts.html ? "<pre>" + Str.escapeHTML(val) + "</pre>": val;
+        }
+
+        // Need to do this way in case somebody patches one of these
+        local printers = {info = ::logInfo, warn = ::logWarning, warning = ::logWarning,
+                          error = ::logError};
+        printers[_opts.level](s);
     }
 
     // Create a new Debug with changed default options:
     //     local Debug = ::std.Debug.with({prefix: "my-module: ", width: 120});
     //     Debug.log("enemy", enemy);
     function with(_opts) {
-        return Util.merge(this, {DEFAULTS = Util.merge(this.DEFAULTS, _opts)})
+        return Util.merge(this, {DEFAULTS = Util.merge(DEFAULTS, _opts)})
     }
 
     enabled = true
     function noop() {
         return {
             enabled = false
-            function pp(data, _opts = {}, _level = 0, _prepend = "") {}
-            function log(name, ...) {}
+            DEFAULTS = DEFAULTS
+            function pp(_data, _opts = {}, _level = 0, _prepend = "") {}
+            function log(_name, ...) {}
+            function logRepr(_name, _data, ...) {}
+            function trace(_name, ...) {}
+            function with(_opts) {return this}
+            function noop() {return this}
         }
     }
 }
+// ::std.Debug = Debug.noop()
 
-::std.debug <- function (data, ...) {
-    this.logInfo("<pre>" + Debug.pp(data, Debug._interpret(vargv)) + "</pre>")
+::std.debug <- function (_data, ...) {
+    if (typeof _data == "string") Debug._out(_data, EMPTY, Debug._interpret(vargv));
+    else Debug._out(EMPTY, _data, Debug._interpret(vargv));
 }
+// TODO: ::std.trace() ?
+// TODO: rename Debug -> Log, .log -> .show, .logRepr -> .repr, .repr -> ???
+//       or just .logRepr -> .repr, .repr -> ppRepr?
+//       or .log -> .pp (and accept data struct as first arg too)
+//          .logRepr -> .repr

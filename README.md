@@ -706,6 +706,10 @@ options.push({target = best.Target, skill = s, score = best.Score});
 Debug.logRepr("options", options);
 ```
 
+#### `trace(name, value, options = {})`
+
+Same as `Debug.log()` but will add current file, line number and function name.
+
 #### `::std.debug(data, options = {})`
 
 A quick way to pretty print data to a log. Same as above, but doesn't have name param and associated `<name> = ` prefix. Very handy in [Dev Console][dev-console]:
@@ -725,9 +729,13 @@ std.debug(getBro("Skarbrand"), {filter = "Perk", depth = 7})
 
 Formats data into a pretty printed string, i.e. with text wrapped and indented properly. Works on arbitrary nested structures. Has "named params" in a form of `options` table keys:
 
+- `level` - "info", "warning" or "error", defaults to "info",
 - `depth` - maximum depth to print, defaults to 3,
-- `filter` - only show keys containing this string and their values,
+- `filter` - only show keys containing string or passing test and their values,
+             if it's a func then it should be like `@(k, v) ...`,
 - `prefix` - prepend each line with this, defaults to an empty string,
+- `trace` - add "filename:lineno in func()", defaults to false,
+- `html` - escape html tags and wrap in `<pre>`, defaults to true,
 - `width` - assume this screen width in characters, defaults to 100,
 - `funcs` - how to show functions in tables, defaults to "count", and might be set to:
     - "full" - prints "name = (function : 0x...)" for each function
@@ -744,9 +752,11 @@ A shortcut for `Debug.pp()` with `repr` set to `true`.
 #### `with(options)`
 
 Set up a `Debug` copy with desired defaults:
+
 ```squirrel
-// Set up a local ref
+// Set up a local refs
 local Debug = ::std.Debug.with({prefix = "mymod: ", width = 80, depth = 2});
+local Warn = Debug.with({level = "warning"});
 
 // Use it as usual
 Debug.log("params", params);
@@ -755,6 +765,10 @@ Debug.log("bro", this, 1);           // Same via a shortcut
 
 // Debug.pp() is also affected
 ::logWarning("Failed to find a value " + value + " in " + Debug.pp(arr));
+
+// Show warnings
+Warn.log("Something bad happened");
+Warn.logRepr("bad tile", tile);
 
 // Set it up for a mod
 ::CoolMod <- {
@@ -1017,6 +1031,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
 - [Debug Helpers](#debug-helpers)
     - [`log(name, [value, options = {}])`](#logname-value-options--)
     - [`logRepr(name, value, options = {})`](#logreprname-value-options--)
+    - [`trace(name, value, options = {})`](#tracename-value-options--)
     - [`::std.debug(data, options = {})`](#stddebugdata-options--)
     - [`pp(data, options = {})`](#ppdata-options--)
     - [`repr(data, options = {})`](#reprdata-options--)
