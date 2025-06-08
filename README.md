@@ -614,19 +614,30 @@ if (!injury) return;
 
 ## Tile
 
-#### `iterAdjacent(tile)`
+#### `iterAdjacent(tile)`, `listAdjacent(tile)`
 
-Iterates tiles adjacent to the given one. Often helpful in AI or skill code.
+Iterates or lists tiles adjacent to the given one. Often helpful in AI or skill code to replace usual `for (local i = 0; i < ::Const.Direction.COUNT; ++i)` boilerplate:
 
-#### `iterAdjacentActors(tile)`
+```squirrel
+foreach (tile in Tile.iterAdjacent(myTile)) {
+    if (skill.onVerifyTarget(myTile, tile) && (score = scoreTile(tile)) > bestScore) {
+        best = {tile = tile, score = score}
+    }
+}
 
-Iterates actors around the given tile.
+// List version returns an array
+local emptyTiles = Tile.listAdjacent(myTile).filter(@(t) !t.IsEmpty)
+```
+
+#### `iterAdjacentActors(tile)`, `listAdjacentActors(tile)`
+
+Iterates or lists actors around the given tile.
 
 ```squirrel
 // Count allies and enemies around
 local allies = 0, enemies = 0;
-foreach (actor in stdTile.iterAdjacentActors(targetTile)) {
-    if (_entity.isAlliedWith(_entity)) allies++;
+foreach (actor in Tile.iterAdjacentActors(targetTile)) {
+    if (actor.isAlliedWith(_entity)) allies++;
     else enemies++;
 }
 ```
@@ -992,8 +1003,8 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`addTraits(player, num, opts = null)`](#addtraitsplayer-num-opts--null)
     - [removePermanentInjury\(_player\[, _id\]\)](#removepermanentinjury_player-_id)
 - [Tile](#tile)
-    - [`iterAdjacent(tile)`](#iteradjacenttile)
-    - [`iterAdjacentActors(tile)`](#iteradjacentactorstile)
+    - [`iterAdjacent(tile)`, `listAdjacent(tile)`](#iteradjacenttile-listadjacenttile)
+    - [`iterAdjacentActors(tile)`, `listAdjacentActors(tile)`](#iteradjacentactorstile-listadjacentactorstile)
 - [Debug Helpers](#debug-helpers)
     - [`log(name, [value, options = {}])`](#logname-value-options--)
     - [`logRepr(name, value, options = {})`](#logreprname-value-options--)
