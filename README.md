@@ -819,6 +819,10 @@ Restore relations with some noble house.
 
 Returns a list of enemies with a specified name, usable only during combat.
 
+#### `fixCombat()`, `fixCombatEnd()`
+
+Fixes the hang up during combat or when supposed to show combat result screen. This does not fix the underlying issue breaking it of cause, so side effects are unpredictable.
+
 
 ## Other Utils
 
@@ -1007,6 +1011,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`breakItems(_pct)`](#breakitems_pct)
     - [`restoreRelations()`](#restorerelations)
     - [`getEnemies(_name)`](#getenemies_name)
+    - [`fixCombat()`, `fixCombatEnd()`](#fixcombat-fixcombatend)
 - [Other Utils](#other-utils)
     - [`isNull(obj)`](#isnullobj)
     - [`isKindOf(obj, className)`](#iskindofobj-classname)

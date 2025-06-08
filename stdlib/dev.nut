@@ -79,6 +79,13 @@ local Util = ::std.Util;
         local ops = getBro().getAIAgent().getKnownOpponents();
         return ops.map(@(r) r.Actor).filter(@(_, a) a.getName() == _name);
     }
+    function fixCombat() {
+        ::Tactical.TurnSequenceBar.m.IsLocked = false;
+        ::Tactical.TurnSequenceBar.initNextTurn(true);
+    }
+    function fixCombatEnd() {
+        ::Tactical.State.m.TacticalCombatResultScreen.show();
+    }
 }
 ::std.Dev.getNearestTown <- ::std.Dev.getTown;
 ::std.Dev.getNearestLocation <- ::std.Dev.getLocation;
