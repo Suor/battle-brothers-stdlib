@@ -75,7 +75,7 @@ Table.extend(Util, {
         if (a == b) return true;
         if (typeof a != typeof b) return false;
 
-        if (typeof a == "string" || typeof a == "integer" || typeof a == "float") {
+        if (typeof a == "string" || typeof a == "integer" || typeof a == "float" || typeof a == "bool") {
             return a == b;
         } else if (typeof a == "array") {
             if (a.len() != b.len()) return false;
