@@ -828,9 +828,9 @@ Uncovers location by its `TypeId`:
 std.Dev.showLocation("location.witch_hut")
 ```
 
-#### `getTown()`
+#### `getTown([_name])`
 
-Returns a nearest town.
+Returns a town with the given name or just a nearest one.
 
 #### `rerollHires(_town = null)`
 
@@ -1040,7 +1040,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
 - [Dev Utils](#dev-utils)
     - [`getLocation()`](#getlocation)
     - [`showLocation(_typeId)`](#showlocation_typeid)
-    - [`getTown()`](#gettown)
+    - [`getTown([_name])`](#gettown_name)
     - [`rerollHires(_town = null)`](#rerollhires_town--null)
     - [`fixItems()`](#fixitems)
     - [`breakItems(_pct)`](#breakitems_pct)

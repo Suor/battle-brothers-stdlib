@@ -1,4 +1,4 @@
-local Util = ::std.Util;
+local Array = ::std.Array, Util = ::std.Util;
 
 ::std.Dev <- {
     function getLocation() {
@@ -25,15 +25,14 @@ local Util = ::std.Util;
         }
     }
 
-    function getTown() {
+    function getTown(_name = null) {
         local towns = ::World.EntityManager.getSettlements();
-        local playerTile = ::World.State.getPlayer().getTile();
-        local town, distance = 99999;
-        foreach (i, t in towns) {
-            local d = t.getTile().getDistanceTo(playerTile);
-            if (d < distance) {distance = d; town = t}
+        if (_name != null) {
+            foreach(t in towns) if (t.getName() == _name) return t;
         }
-        return town
+
+        local playerTile = ::World.State.getPlayer().getTile();
+        return Array.min(towns, @(t) t.getTile().getDistanceTo(playerTile));
     }
     function rerollHires(_town = null) {
         if (_town == null) _town = this.getTown();
