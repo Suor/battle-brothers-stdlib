@@ -102,12 +102,12 @@ Additionally, stdlib is guaranteed to be backwards compatible, i.e. it is always
 
 stdlib does not depend on anything, however if [modhooks][] or [Modern Hooks][ModernHooks] are present then it will register itself, so you can declare a dependency like:
 ```squirrel
-::mods_queue(mod.ID, "stdlib(>=1.7)", function () {
+::mods_queue(mod.ID, "stdlib(>=2.5)", function () {
     // ... queued code goes here ...
 })
 
 // Or using Modern Hooks
-mod.require("stdlib >= 2.1");
+mod.require("stdlib >= 2.5");
 ```
 
 
@@ -811,7 +811,7 @@ A way to make a dummy Debug object, usable to switch off and on debugging in you
 
 ## Dev Utils
 
-These are targeted to be used as helpers during debugging your game or mods via [Dev Console][dev-console].
+These are targeted to be used as helpers during debugging your game or mods via [Dev Console][dev-console]. Note that in Dev Console it will look like `std.Dev.doSomething()`, i.e. with all the prefixes.
 
 **As such they are not covered by backward compatibility guarantees.** If you want to use something of this please contact me and I will consider moving it to an appropriate stable section.
 
@@ -842,11 +842,11 @@ Fix all items on all bros and in stash.
 
 #### `breakItems(_pct)`
 
-Sets condition of all items on bros and in stash to specified percantage. I.e. `Dev.breakItems(0.5)` will set everything to the half of their condition.
+Sets condition of all items on bros and in stash to specified percantage. I.e. `std.Dev.breakItems(0.5)` will set everything to the half of their condition.
 
 #### `restoreRelations()`
 
-Restore relations with some noble house.
+Restore relations with some noble house. Can be called repeatedly to restore relations with more than one noble house.
 
 #### `getEnemies(_name)`
 
