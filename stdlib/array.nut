@@ -42,6 +42,25 @@
             if (pred(item)) return i;
         }
     }
+    function some(arr, pred) {
+        foreach (i, item in arr) {
+            if (pred(item)) return item;
+        }
+    }
     // function zip(a1, a2) {
     // }
+
+    // TODO: more efficient implementation
+    function nlargest(_n, _arr, _key = null) {
+        if (_n == 0) return [];
+        if (_n == 1) return [::std.Array.max(_arr, _key)];
+
+        local arr = clone _arr;
+        if (_key) arr.sort(@(a, b) _key(b) <=> _key(a));
+        else {
+            arr.sort();
+            arr.reverse();
+        }
+        return arr.len() < _n ? arr : arr.slice(0, _n);
+    }
 }

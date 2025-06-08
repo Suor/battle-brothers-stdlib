@@ -947,7 +947,7 @@ These things are coded and some even tested but not public yet, i.e. backward-co
 
 ```squirrel
 Table.getIn()
-Array.findBy()
+Array.findBy(), .some(), .nlargest()
 Flags.*
 Iter.*
 Packer.* // but accessible via Util.pack() and .unpack()
