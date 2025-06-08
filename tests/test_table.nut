@@ -4,6 +4,7 @@ local Table = ::std.Table;
 assertEq(Table.keys({}), [])
 assertEq(Table.keys({a = 1}), ["a"])
 assertEq(Table.values({a = 1}), [1])
+assertEq(Table.pairs({a = 1}), [["a", 1]])
 
 local t = {}
 assertEq(Table.extend(t, {a = 1}), {a = 1})

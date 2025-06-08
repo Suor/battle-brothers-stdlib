@@ -457,6 +457,14 @@ Returns an array of table keys.
 
 Returns an array of table values.
 
+```squirrel
+local weightsSum = Array.sum(Table.values(weights))
+```
+
+#### `pairs(table)`
+
+Returns an array of `[key, value]` pairs.
+
 #### `filter(table, func)`
 
 Creates a table with key value pairs filtered by the given function:
@@ -983,6 +991,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`get(table, key, def = null)`](#gettable-key-def--null)
     - [`keys(table)`](#keystable)
     - [`values(table)`](#valuestable)
+    - [`pairs(table)`](#pairstable)
     - [`filter(table, func)`](#filtertable-func)
     - [`map(table, func)`](#maptable-func)
     - [`mapValues(table, func)`](#mapvaluestable-func)

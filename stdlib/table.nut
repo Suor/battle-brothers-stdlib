@@ -20,6 +20,11 @@
         foreach (_, value in data) res.push(value);
         return res;
     }
+    function pairs(data) {
+        local res = [];
+        foreach (key, value in data) res.push([key, value]);
+        return res;
+    }
 
     function extend(dst, src) {
         foreach (key, value in src) {
