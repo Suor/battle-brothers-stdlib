@@ -8,8 +8,8 @@ if ("std" in getroottable() && ::std.version >= version) return;
 
 ::include("stdlib/array");
 ::include("stdlib/table");
-::include("stdlib/str");
 ::include("stdlib/re");
+::include("stdlib/str");
 ::include("stdlib/rand");
 ::include("stdlib/debug");
 ::include("stdlib/actor");

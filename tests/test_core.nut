@@ -17,6 +17,9 @@ assertEq(Str.split("zyx", "hi, there"), ["hi, there"])
 assertEq(Str.split(".", "a.b.c"), ["a", "b", "c"])
 assertEq(Str.split(".", "a.b.c", 1), ["a", "b.c"])
 
+assertEq(Str.escapeHTML("Hi<br>"), "Hi&lt;br&gt;")
+assertEq(Str.escapeHTML("Hi&nbsp;"), "Hi&amp;nbsp;")
+
 // Re
 assert(Re.find("Ivan IV", " ([IVXLC]+)$") == "IV")
 assert(Re.find("Ivan IV", " [IVXLC]+$") == " IV")

@@ -173,6 +173,18 @@ Str.join(" ", split("hey there", " ").map(Str.capitalize))
 
 Replaces occurances of `old` in a given string by `new`. If `count` is passed, only the first `count` occurences are replaced.
 
+#### `escapeHTML(str)`
+
+Escapes symbols, which have special function in HTML. Handy to prepare a message for `::logInfo()` or sending to UI:
+
+```squirrel
+::logInfo("msg = " + Str.escapeHTML(msg)); // if you expect <, > or & in msg
+
+// Note that using Debug.log() or std.debug() will do that for you automatically:
+Debug.log("msg", msg);
+std.debug("msg = " + msg);
+```
+
 
 ## Regular Expressions
 
@@ -925,6 +937,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`split(sep, s, count = inf)`](#splitsep-s-count--inf)
     - [`join(sep, strings)`](#joinsep-strings)
     - [`replace(str, old, new, [count])`](#replacestr-old-new-count)
+    - [`escapeHTML(str)`](#escapehtmlstr)
 - [Regular Expressions](#regular-expressions)
     - [`find(str, re)`](#findstr-re)
     - [`test(str, re)`](#teststr-re)

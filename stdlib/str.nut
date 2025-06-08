@@ -1,4 +1,4 @@
-local Str;
+local Re = ::std.Re, Str;
 Str = ::std.Str <- {
     function replace(str, old, new, count = 2147483647) {
         local res = "", pos = 0, n = 0;
@@ -54,4 +54,9 @@ Str = ::std.Str <- {
     // function title(str) {
     //     return Re.replace(str, "[a-zA-Z]+", @(w) Str.capitalize(w));
     // }
+
+    function escapeHTML(str) {
+        local repl = {"<": "&lt;", ">": "&gt;", "&": "&amp;"}
+        return Re.replace(str, @"[<>&]", @(m) repl[m]);
+    }
 }
