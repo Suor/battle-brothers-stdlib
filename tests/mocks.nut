@@ -1,4 +1,5 @@
 local STDLIB_DIR = getenv("STDLIB_DIR") || "";
+local ROSETTA_DIR = getenv("ROSETTA_DIR") || "";
 
 function startswith(s, sub) {
     if (s.len() < sub.len()) return false;
@@ -6,6 +7,7 @@ function startswith(s, sub) {
 }
 ::include <- function (script) {
     if (startswith(script, "stdlib")) script = STDLIB_DIR + script;
+    if (startswith(script, "rosetta")) script = ROSETTA_DIR + script;
     return dofile(script + ".nut", true)
 }
 ::new <- function (script) {
