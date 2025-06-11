@@ -1,5 +1,5 @@
 // Ensure only the latest version goes as ::std
-local version = 2.4;
+local version = 2.5;
 if ("std" in getroottable() && ::std.version >= version) return;
 
 // Util is forward declared, so that others might use it, even things added later with extend.

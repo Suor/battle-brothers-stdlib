@@ -1,3 +1,20 @@
+2.5
+- added Str.escapeHTML()
+- added Table.pairs()
+- added Player.removePermanentInjury()
+- added Tile.listAdjacent*()
+- added Dev.getTown(_name)
+- added Dev.fixCombat*()
+- escape HTML in Debug logging, added html option
+- added level option to Debug to call logInfo, logWarning and logError
+- added Debug.trace() to show filename:lineno in func()
+- support arbitrary callable filter in Debug options
+- removed Nearest from Dev.getLocation()/Dev.getTown() (old versions available as aliases)
+- made Debug.noop() work with all methods
+- handle bool in Util.deepEq()
+Experimental:
+- added Array.some() and Array.nlargest()
+
 2.4
 - added Tile.iterAdjacent*() utils
 - added Debug.logRepr() and .repr()
