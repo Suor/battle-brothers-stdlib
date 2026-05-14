@@ -17,6 +17,10 @@ assertEq(Str.split("zyx", "hi, there"), ["hi, there"])
 assertEq(Str.split(".", "a.b.c"), ["a", "b", "c"])
 assertEq(Str.split(".", "a.b.c", 1), ["a", "b.c"])
 
+assertEq(Str.unicodeLen("abc"), 3)
+assertEq(Str.unicodeLen("фыва"), 4)
+assertEq(Str.unicodeLen("фыва abc"), 8)
+
 assertEq(Str.escapeHTML("Hi<br>"), "Hi&lt;br&gt;")
 assertEq(Str.escapeHTML("Hi&nbsp;"), "Hi&amp;nbsp;")
 

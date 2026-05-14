@@ -46,6 +46,13 @@ Str = ::std.Str <- {
         return s;
     }
 
+    function unicodeLen(s) {
+        local n = 0;
+        for (local i = 0; i < s.len(); i++)
+            if ((s[i] & 0xC0) != 0x80) n++;
+        return n;
+    }
+
     function capitalize(str) {
         if (str == "") return str;
         return str.slice(0, 1).toupper() + str.slice(1);
