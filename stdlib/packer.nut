@@ -22,8 +22,8 @@
         "null": '~'  // Use char outside of cint range to work with vectors and structs
         "true": '+'
         "false": '-'
-        cint = '!'
-        mint = '#'
+        cint = '!'   // "char int", opcode + single char
+        mint = '#'   // "medium int", opcode + 2 chars
         integer = '"'
         float = '.'
         string = "'"[0]
@@ -171,6 +171,7 @@
                 if (n == 0 || n > maxStructLen) return _packTable(_val, _ctx);
 
                 // Try struct
+                // TODO: better heuristics for not using Struct, i.e. set/map/counter scenario
                 local cacheKey = Struct.keyFor(_val);
                 if (cacheKey == null) return _packTable(_val, _ctx);
 
@@ -214,6 +215,7 @@
         foreach (xp in _itemsp) text += xp;
         return text;
     }
+    // TODO: add ops.map, with running opcodes for keys and values separately
     function _packTable(_val, _ctx) {
         local text = ops.table + _packlen(_val.len(), _ctx);
         foreach (k, v in _val) text += _pack(k, _ctx) + _pack(v, _ctx);
