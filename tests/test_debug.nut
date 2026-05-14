@@ -44,6 +44,19 @@ assertEq(clean(last), "k = {a = (table : <hash>), ...}")
 Debug.log("k", {a = {b = 1, d = 3}, c = 2}, {filter = @(k, v) v == 1});
 assertEq(clean(last), "k = {a = {b = 1, ...}, ...}")
 
+Debug.logRepr("ActiveBehavior", {
+    ClassName = "ai_attack_default"
+    m = {
+        TargetTile = {X = 12, Y = 7, __getTable={X = 12, Y = 7}}
+        Skill = {ClassName = "aimed_shot"}.setdelegate({ClassName = "skill"})
+    }
+    Bogus = "should not be shown"
+}.setdelegate({ClassName = "behavior"}))
+assertEq(clean(last), "ActiveBehavior = behavior {\n"
+                    + "    ClassName = \"ai_attack_default\"\n"
+                    + "    m = {Skill = aimed_shot, TargetTile = 12, 7}\n"
+                    + "}")
+
 ::std.debug({a = {b = 1, d = 3}, c = 2}, "a", 1);
 assertEq(clean(last), "{a = (table : <hash>), ...}")
 

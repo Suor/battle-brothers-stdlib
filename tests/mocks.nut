@@ -13,6 +13,13 @@ function startswith(s, sub) {
 ::new <- function (script) {
     return {}
 }
+::isKindOf <- function (_obj, _class) {
+    while (_obj != null && "ClassName" in _obj) {
+        if (_obj.ClassName == _class) return true;
+        _obj = _obj.getdelegate();
+    }
+    return false;
+}
 
 ::Math <- {
     minf = @(a, b) a <= b ? a : b

@@ -13,6 +13,12 @@ local function isTile(_obj) {
     return "__getTable" in _obj && "X" in _obj.__getTable && "Y" in _obj.__getTable;
 }
 
+local Wrapper = class {
+    name = null;
+    table = null;
+    constructor (_name, _table) {name = _name; table = _table}
+}
+
 local EMPTY = {}, Debug;
 Debug = ::std.Debug <- {
     // TODO: re filter?
@@ -56,11 +62,13 @@ Debug = ::std.Debug <- {
         }
         function skill(_s) {return _s.ClassName}
         function tile(_t) {return _t.X + ", " + _t.Y}
+        function behavior(_b) {return Wrapper("behavior", {ClassName = _b.ClassName, m = _b.m})}
     }
     function _guessType(_obj) {
         if (Util.isKindOf(_obj, "skill")) return "skill";
         else if (Util.isKindOf(_obj, "actor")) return "actor";
         else if (isTile(_obj)) return "tile";
+        else if (Util.isKindOf(_obj, "behavior")) return "behavior";
     }
 
     function _pp(data, _opts = {}, _level = 0, _prepend = "") {
@@ -85,7 +93,10 @@ Debug = ::std.Debug <- {
 
         if (_opts.repr) {
             local type = _guessType(data);
-            if (type != null) return startln + reprs[type](data) + endln;
+            if (type != null) {
+                data = reprs[type](data);
+                if (typeof data == "string") return startln + data + endln;
+            }
         }
 
         local cls = null;
@@ -94,6 +105,9 @@ Debug = ::std.Debug <- {
             if (data instanceof ::WeakTableRef) {
                 cls = "weakref";
                 data = data.get();
+            } else if (data instanceof Wrapper) {
+                cls = data.name;
+                data = data.table;
             } else {
                 // Turn instance into table if possible
                 try {
