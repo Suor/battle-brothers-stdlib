@@ -13,8 +13,7 @@ Str = ::std.Str <- {
     }
 
     function startswith(s, sub) {
-        if (s.len() < sub.len()) return false;
-        return s.slice(0, sub.len()) == sub;
+        return s.find(sub) == 0;
     }
     function endswith(s, sub) {
         if (s.len() < sub.len()) return false;
