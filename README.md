@@ -634,7 +634,7 @@ foreach (tile in Tile.iterAdjacent(myTile)) {
 }
 
 // List version returns an array
-local emptyTiles = Tile.listAdjacent(myTile).filter(@(t) !t.IsEmpty)
+local emptyTiles = Tile.listAdjacent(myTile).filter(@(_, t) !t.IsEmpty)
 ```
 
 #### `iterAdjacentActors(tile)`, `listAdjacentActors(tile)`
