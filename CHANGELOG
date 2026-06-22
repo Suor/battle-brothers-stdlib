@@ -1,3 +1,8 @@
+- Player.addTraits() respects excludes by default: a candidate blocked by the
+  background or a present trait is skipped (one-directional, like the vanilla
+  roll); opt out with {excludes = false}
+- added Player.isTraitExcluded()
+
 2.5
 - added Str.escapeHTML()
 - added Table.pairs()

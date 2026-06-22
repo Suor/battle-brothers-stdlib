@@ -164,6 +164,18 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
         if (this.BadTraitIds.find(traitId) != null) return "BAD";
         return "GOOD";
     }
+    // One-directional check mirroring the vanilla starting traits roll:
+    // the background or any present trait excludes the candidate
+    function isTraitExcluded(_player, _traitId) {
+        local bg = _player.getBackground();
+        if (bg != null && bg.isExcluded(_traitId)) return true;
+        // SkillType.Passive includes the Trait bit, so this filter also catches passive skills
+        // built straight from skill, which have no isExcluded()
+        foreach (skill in _player.getSkills().getAllSkillsOfType(::Const.SkillType.Trait))
+            if (Util.isIn("isExcluded", skill) && skill.isExcluded(_traitId)) return true;
+        return false;
+    }
+
     function addTraits(_player, _num, _opts = null) {
         if (_num == 0) return [];
 
@@ -172,6 +184,7 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
             bad = true
             soso = true
             stupid = false
+            excludes = true  // respect background and trait excludes
         }, _opts || {})
 
         local self = this;
@@ -183,6 +196,7 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
 
         local added = 0, good = 0, notGood = 0, changes = [];
         foreach (trait in Rand.itake(pool)) {
+            if (_opts.excludes && this.isTraitExcluded(_player, trait[0])) continue;
             if (this.Debug) {
                 local type = this.traitType(trait[0]);
                 ::logInfo("stdlib: bro " + _player.getName() + " got " + trait[0] + " " + type);

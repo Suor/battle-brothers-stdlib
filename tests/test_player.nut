@@ -13,6 +13,7 @@ local player = {
             function add(item) {
                 this.Skills.push(item)
             }
+            function getAllSkillsOfType(type) {return this.Skills}
         }
     }
     function getName() {
@@ -74,6 +75,7 @@ local player = {
                 ]
             }
             function isUntalented() {return false}
+            function isExcluded(_id) {return false}
         }
     }
 }
@@ -132,3 +134,35 @@ rng.reset(97);
 Player.addTraits(player, 1, {bad = false, stupid = true})
 assertSkillsNum(4)
 print("Player: traits OK\n");
+
+// Background excludes are respected: only the non-excluded trait can be added
+local origGetBackground = player.getBackground;
+player.getBackground = function () {
+    return {
+        function isExcluded(_id) {return _id != "trait.short_sighted"}
+    }
+}
+rng.reset(6);
+Player.addTraits(player, 1)
+assertEq(player.getSkills().Skills[0].Script, "scripts/skills/traits/short_sighted_trait");
+assertSkillsNum(1)
+player.getBackground = origGetBackground;
+
+// Present trait excludes are respected: everything is blocked, nothing added
+player.getSkills().Skills.push({ function isExcluded(_id) {return true} })
+Player.addTraits(player, 2)
+assertSkillsNum(1)
+
+// ... unless opted out
+player.getSkills().Skills.push({ function isExcluded(_id) {return true} })
+rng.reset(6);
+Player.addTraits(player, 2, {excludes = false})
+assertSkillsNum(3)
+
+// Skills without isExcluded() must not crash the check: SkillType.Passive includes the Trait
+// bit, so passive skills built straight from skill are caught by the Trait filter too.
+player.getSkills().Skills.push({})
+rng.reset(6);
+Player.addTraits(player, 1)
+assertSkillsNum(2)
+print("Player: trait excludes OK\n");

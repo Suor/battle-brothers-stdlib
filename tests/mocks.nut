@@ -11,7 +11,10 @@ function startswith(s, sub) {
     return dofile(script + ".nut", true)
 }
 ::new <- function (script) {
-    return {}
+    return {
+        Script = script
+        function isExcluded(_id) {return false}
+    }
 }
 ::isKindOf <- function (_obj, _class) {
     while (_obj != null && "ClassName" in _obj) {
@@ -56,6 +59,10 @@ function startswith(s, sub) {
         MeleeDefense = 6,
         RangedDefense = 7,
         COUNT = 8
+    }
+    SkillType = {
+        Trait = 0x800000
+        PermanentInjury = 0x4000
     }
 }
 ::Const.CharacterTraits <- [
