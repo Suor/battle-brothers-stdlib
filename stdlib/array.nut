@@ -33,18 +33,31 @@
         foreach (x in arr) total += x;
         return total;
     }
+    function count(arr, pred) {
+        local n = 0;
+        foreach (item in arr) if (pred(item)) n++;
+        return n;
+    }
 
     function without(arr, ...) {
-        throw "Not implemented"
+        return arr.filter(@(_, v) vargv.find(v) == null);
+    }
+    function diff(arr1, arr2) {
+        return arr1.filter(@(_, v) arr2.find(v) == null);
+    }
+    function intersect(arr1, arr2) {
+        return arr1.filter(@(_, v) arr2.find(v) != null);
+    }
+
+    function first(arr, pred) {
+        foreach (item in arr) {
+            if (pred(item)) return item;
+        }
+        return null;
     }
     function findBy(arr, pred) {
         foreach (i, item in arr) {
             if (pred(item)) return i;
-        }
-    }
-    function some(arr, pred) {
-        foreach (i, item in arr) {
-            if (pred(item)) return item;
         }
     }
     // function zip(a1, a2) {
@@ -64,3 +77,4 @@
         return arr.len() < _n ? arr : arr.slice(0, _n);
     }
 }
+::std.Array.some <- ::std.Array.first;

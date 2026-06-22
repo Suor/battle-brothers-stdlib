@@ -75,6 +75,15 @@ assertEq(Array.min(["b" "x" "a" "k"]), "a")
 assertEq(Array.max(["ab" "xyz" "ijkl" "stu"], @(x) x.len()), "ijkl")
 assertEq(Array.min(["ab" "xyz" "ijkl" "stu"], @(x) x.len()), "ab")
 
+assertEq(Array.diff([1 2 3], [2 4]), [1 3])
+assertEq(Array.intersect([1 2 3], [2 4]), [2])
+assertEq(Array.without([1 2 1 0 3 1 4], 0, 1), [2 3 4])
+assertEq(Array.first([1 2 3], @(v) v > 1), 2)
+assertEq(Array.first([1 2 3], @(v) v > 5), null)
+assertEq(Array.count([], @(v) v > 0), 0)
+assertEq(Array.count([1 2 3 4], @(v) v > 2), 2)
+assertEq(Array.count([1 2 3 4], @(v) v > 10), 0)
+
 // Iter
 assertEq(Iter.toArray(Iter.chunks(2, "12345")), ["12" "34" "5"]);
 assertEq(Iter.toArray(Iter.chunks(2, [1 2 3 4 5])), [[1 2], [3 4], [5]]);

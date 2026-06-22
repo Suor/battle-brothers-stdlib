@@ -413,6 +413,13 @@ local stash = this.World.Assets.getStash().getItems();
 Array.any(stash, @(item) item.isItemType(::Const.Items.ItemType.Weapon) && item.getValue() >= 1000);
 ```
 
+#### `first(arr, pred)`
+
+Returns the first element in `arr` that satisfies the given predicate `pred`, or `null` if none found.
+```squirrel
+local firstWounded = Array.first(bros, @(bro) bro.getHitpointsPct() < 1.0);
+```
+
 #### `max(arr, key = null)`
 
 Find a max element in a given array. If `key` is passed then calls it for each element to judje "how big is it".
@@ -438,6 +445,22 @@ local talentScore = Array.sum(bro.getTalents());
 local items = bro.getItems().getAllItemsAtSlot(::Const.ItemSlot.Bag);
 local totalWeight = Array.sum(items.map(@(item) item.getStaminaModifier()));
 ```
+
+#### `diff(arr1, arr2)`
+
+Returns a new array with elements from `arr1` that are not present in `arr2`.
+
+#### `without(arr, ...values)`
+
+Returns a new array with all occurrences of the specified values removed.
+```squirrel
+local result = Array.without([1, 2, 1, 3], 1); // [2, 3]
+```
+
+#### `intersect(arr1, arr2)`
+
+Returns a new array with elements present in both `arr1` and `arr2`.
+
 
 ## Table
 
@@ -998,9 +1021,13 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`cat(arrays)`, `concat(...arrays)`](#catarrays-concatarrays)
     - [`all(arr, func)`](#allarr-func)
     - [`any(arr, func)`](#anyarr-func)
+    - [`first(arr, pred)`](#firstarr-pred)
     - [`max(arr, key = null)`](#maxarr-key--null)
     - [`min(arr, key = null)`](#minarr-key--null)
     - [`sum(arr)`](#sumarr)
+    - [`diff(arr1, arr2)`](#diffarr1-arr2)
+    - [`without(arr, ...values)`](#withoutarr-values)
+    - [`intersect(arr1, arr2)`](#intersectarr1-arr2)
 - [Table](#table)
     - [`get(table, key, def = null)`](#gettable-key-def--null)
     - [`keys(table)`](#keystable)
