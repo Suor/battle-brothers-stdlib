@@ -1,7 +1,8 @@
-- Player.addTraits() respects excludes by default: a candidate blocked by the
-  background or a present trait is skipped (one-directional, like the vanilla
-  roll); opt out with {excludes = false}
+2.6
+- Player.addTraits() respects excludes by default
 - added Player.isTraitExcluded()
+- added Array.first(), .diff(), .intersect(), .count() and .without()
+- added Str.unicodeLen()
 
 2.5
 - added Str.escapeHTML()
