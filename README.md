@@ -453,6 +453,14 @@ local items = bro.getItems().getAllItemsAtSlot(::Const.ItemSlot.Bag);
 local totalWeight = Array.sum(items.map(@(item) item.getStaminaModifier()));
 ```
 
+#### `count(arr, pred)`
+
+Counts the elements in `arr` for which `pred` returns a truthy value.
+```squirrel
+// How many bros are wounded
+local wounded = Array.count(bros, @(bro) bro.getHitpointsPct() < 1.0);
+```
+
 #### `diff(arr1, arr2)`
 
 Returns a new array with elements from `arr1` that are not present in `arr2`.
@@ -1033,6 +1041,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`max(arr, key = null)`](#maxarr-key--null)
     - [`min(arr, key = null)`](#minarr-key--null)
     - [`sum(arr)`](#sumarr)
+    - [`count(arr, pred)`](#countarr-pred)
     - [`diff(arr1, arr2)`](#diffarr1-arr2)
     - [`without(arr, ...values)`](#withoutarr-values)
     - [`intersect(arr1, arr2)`](#intersectarr1-arr2)
