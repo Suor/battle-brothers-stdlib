@@ -10,9 +10,6 @@ local function pprint(_val) {
 
 // ... put your code here ...
 
-// local x = {}.setdelegate({_get = @(k) @(...) null});
+local x = {a = 1}, z = x.a + 1;
 
-// pprint(x.onNewDay("hey"));
-
-// local xs = [1 2 3].map(@(x) {a = x, b = x*x});
-pprint(format("%d food", 3.123))
+pprint(z)
