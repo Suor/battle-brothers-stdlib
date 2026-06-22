@@ -185,6 +185,13 @@ Debug.log("msg", msg);
 std.debug("msg = " + msg);
 ```
 
+#### `unicodeLen(str)`
+
+Returns a UTF-8 aware length of a given string. This is useful for Russian and other non-ASCII languages:
+```squirrel
+if (Str.unicodeLen(title) > 16) ...
+```
+
 
 ## Regular Expressions
 
@@ -998,6 +1005,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`join(sep, strings)`](#joinsep-strings)
     - [`replace(str, old, new, [count])`](#replacestr-old-new-count)
     - [`escapeHTML(str)`](#escapehtmlstr)
+    - [`unicodeLen(str)`](#unicodelenstr)
 - [Regular Expressions](#regular-expressions)
     - [`find(str, re)`](#findstr-re)
     - [`test(str, re)`](#teststr-re)
