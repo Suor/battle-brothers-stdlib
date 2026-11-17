@@ -133,6 +133,13 @@ assertSkillsNum(3)
 rng.reset(97);
 Player.addTraits(player, 1, {bad = false, stupid = true})
 assertSkillsNum(4)
+// No good traits
+rng.reset(77);
+Player.addTraits(player, 3, {good = false})
+local traitIds = {};
+foreach (t in ::Const.CharacterTraits) traitIds[t[1]] <- t[0];
+assertEq(player.getSkills().Skills.map(@(s) Player.traitType(traitIds[s.Script])).filter(@(_, t) t == "GOOD"), [])
+assertSkillsNum(3)
 print("Player: traits OK\n");
 
 // Background excludes are respected: only the non-excluded trait can be added

@@ -189,6 +189,7 @@ local Util = ::std.Util, Rand = ::std.Rand.using(::std.rng);
 
         local self = this;
         local pool = ::Const.CharacterTraits.filter(function (_, t) {
+            if (!_opts.good && self.traitType(t[0]) == "GOOD") return false;
             if (!_opts.bad && self.BadTraitIds.find(t[0]) != null) return false;
             if (!_opts.soso && self.SosoTraitIds.find(t[0]) != null) return false;
             return !_player.getSkills().hasSkill(t[0]);
