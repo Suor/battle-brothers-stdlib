@@ -16,6 +16,7 @@ Or just a thing to take the place of lacking Squirrel/Battle Brothers standard l
     - [Actor](#actor)
     - [Player](#player)
     - [Tile](#tile)
+    - [Flags](#flags)
     - [Debug Helpers](#debug-helpers)
     - [Dev Utils](#dev-utils)
     - [Other Utils](#other-utils)
@@ -322,7 +323,14 @@ if (armor.getArmorMax() >= 95 && Rand.chance(0.333)) {
 }
 ```
 
-<!-- ### `index(n, weights = null)` -->
+#### `index(n, weights = null)`
+
+Returns a random index from `0` to `n - 1`. If weights are passed then each index is chosen with a probability proportional to its weight, only the first `n` weights are used:
+```squirrel
+// Pick a slot to drop, weighted by its value
+local i = Rand.index(items.len(), items.map(@(item) item.getValue()));
+local dropped = items.remove(i);
+```
 
 #### `choice(options, weights = null)`
 
@@ -363,7 +371,13 @@ foreach (trait in Rand.take(2, ::Const.CharacterTraits)) {
 }
 ```
 
-<!-- #### `insert(arr, item, num = 1)` -->
+#### `insert(arr, item, num = 1)`
+
+Inserts `item` into `arr` at a random position, does that `num` times. Modifies `arr` in place:
+```squirrel
+// Shuffle a couple of ambushes into the encounter queue
+Rand.insert(encounters, "ambush", 2);
+```
 
 #### `poly(tries, prob)`
 
@@ -647,6 +661,13 @@ Player.addTraits(_player, 2, {soso = false})
 
 Returns a list of traits added, i.e. actual BB objects.
 
+#### `traitType(traitId)`
+
+Tells whether a trait is good, bad or so-so, returns `"GOOD"`, `"BAD"` or `"SOSO"`. Unknown traits, i.e. those added by other mods, are considered good:
+```squirrel
+if (Player.traitType(trait.getID()) == "BAD") badCount++;
+```
+
 #### removePermanentInjury(_player[, _id])
 
 Removes a permanent injury from the bro and returns it, if id is not passed then removes a random one. Correctly updates player visuals:
@@ -687,6 +708,35 @@ foreach (actor in Tile.iterAdjacentActors(targetTile)) {
     else enemies++;
 }
 ```
+
+
+## Flags
+
+Store arbitrary data structures in flags, i.e. in `::World.Flags` or `bro.getFlags()`, so that they survive save/load. Unlike [`Util.pack()`](#packdata) these won't break a savegame on a big structure, which is split into several flags behind the scenes.
+
+#### `pack(flags, key, data)`
+
+Packs `data` and stores it in `flags` under `key`, overwriting whatever was there. `data` may be anything [`Util.pack()`](#packdata) accepts.
+
+#### `unpack(flags, key)`
+
+Restores what was stored with `Flags.pack()` or returns `null` if nothing is stored under `key`. **Removes** the stored flags, so pack them again on save:
+
+```squirrel
+mod.hook("scripts/entity/tactical/player", function (q) {
+    q.onSerialize = @(__original) function (_out) {
+        ::std.Flags.pack(this.getFlags(), "mymod", this.m.MyMod);
+        __original(_out);
+    }
+    q.onDeserialize = @(__original) function (_in) {
+        __original(_in);
+        local data = ::std.Flags.unpack(this.getFlags(), "mymod");
+        if (data) Table.deepExtend(this.m.MyMod, data);
+    }
+});
+```
+
+See more on serialization a [special piece on it](docs/savegames.md).
 
 
 ## Debug Helpers
@@ -986,11 +1036,9 @@ These things are coded and some even tested but not public yet, i.e. backward-co
 ```squirrel
 Table.getIn()
 Array.findBy(), .some(), .nlargest()
-Flags.*
 Iter.*
 Packer.* // but accessible via Util.pack() and .unpack()
-Player.traitType()
-Rand.index(), .insert(), .itake()
+Rand.itake()
 ```
 
 
@@ -1028,9 +1076,11 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`int(a, b)`](#inta-b)
     - [`float([a, b])`](#floata-b)
     - [`chance(prob)`](#chanceprob)
+    - [`index(n, weights = null)`](#indexn-weights--null)
     - [`choice(options, weights = null)`](#choiceoptions-weights--null)
     - [`choices(num, options, weights = null)`](#choicesnum-options-weights--null)
     - [`take(num, options, weights = null)`](#takenum-options-weights--null)
+    - [`insert(arr, item, num = 1)`](#insertarr-item-num--1)
     - [`poly(tries, prob)`](#polytries-prob)
     - [`using(gen)`](#usinggen)
 - [Array](#array)
@@ -1068,10 +1118,14 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`clearTalents(player)`](#cleartalentsplayer)
     - [`addTalents(player, num, opts = null)`](#addtalentsplayer-num-opts--null)
     - [`addTraits(player, num, opts = null)`](#addtraitsplayer-num-opts--null)
+    - [`traitType(traitId)`](#traittypetraitid)
     - [removePermanentInjury\(_player\[, _id\]\)](#removepermanentinjury_player-_id)
 - [Tile](#tile)
     - [`iterAdjacent(tile)`, `listAdjacent(tile)`](#iteradjacenttile-listadjacenttile)
     - [`iterAdjacentActors(tile)`, `listAdjacentActors(tile)`](#iteradjacentactorstile-listadjacentactorstile)
+- [Flags](#flags)
+    - [`pack(flags, key, data)`](#packflags-key-data)
+    - [`unpack(flags, key)`](#unpackflags-key)
 - [Debug Helpers](#debug-helpers)
     - [`log(name, [value, options = {}])`](#logname-value-options--)
     - [`logRepr(name, value, options = {})`](#logreprname-value-options--)
