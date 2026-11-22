@@ -206,7 +206,7 @@ Debug = ::std.Debug <- {
     }
 
     // Create a new Debug with changed default options:
-    //     local Debug = ::std.Debug.with({prefix: "my-module: ", width: 120});
+    //     local Debug = ::std.Debug.with({prefix = "my-module: ", width = 120});
     //     Debug.log("enemy", enemy);
     function with(_opts) {
         return Util.merge(this, {DEFAULTS = Util.merge(DEFAULTS, _opts)})
