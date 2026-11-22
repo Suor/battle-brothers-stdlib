@@ -312,4 +312,9 @@ function startswith(s, sub) {
 
 class WeakTableRef {
     WeakTable = null;
+    constructor(_table) {
+        if (_table != null && typeof _table == "table") this.WeakTable = _table.weakref();
+    }
+    function isNull() {return this.WeakTable == null}
+    function get() {return this.WeakTable}
 }

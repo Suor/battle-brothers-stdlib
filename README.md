@@ -951,6 +951,14 @@ Fixes the hang up during combat or when supposed to show combat result screen. T
 
 Checks if obj is null or a null `WeakTableRef`
 
+#### `weakTableRef(obj)`
+
+Makes a `WeakTableRef` of a table, returns `WeakTableRef`s and `null` as is, throws on anything else. Unlike `::WeakTableRef()`, it's safe to call on a ref with any game version:
+
+```squirrel
+this.m.Master = Util.weakTableRef(_user);
+```
+
 #### `isKindOf(obj, className)`
 
 Checks if an object has the given `className`. Same as BB `isKindOf()` global but correctly works with `WeakTableRef`s.
@@ -1147,6 +1155,7 @@ Any suggestions, bug reports, other feedback are welcome. The best place for it 
     - [`fixCombat()`, `fixCombatEnd()`](#fixcombat-fixcombatend)
 - [Other Utils](#other-utils)
     - [`isNull(obj)`](#isnullobj)
+    - [`weakTableRef(obj)`](#weaktablerefobj)
     - [`isKindOf(obj, className)`](#iskindofobj-classname)
     - [`isIn(key, obj)`](#isinkey-obj)
     - [`getMember(obj, key)`](#getmemberobj-key)

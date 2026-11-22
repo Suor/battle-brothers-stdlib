@@ -2,6 +2,7 @@
 - made public Flags.pack() and .unpack()
 - made public Rand.index() and .insert()
 - made public Player.traitType()
+- added Util.weakTableRef()
 
 2.6
 - Player.addTraits() respects excludes by default

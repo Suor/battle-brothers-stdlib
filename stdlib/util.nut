@@ -29,6 +29,12 @@ Table.extend(Util, {
     function isNull(_obj) {
         return _obj == null || (_obj instanceof ::WeakTableRef && _obj.isNull());
     }
+    // Older vanilla WeakTableRef() makes a null ref out of a WeakTableRef or a non-table
+    function weakTableRef(_obj) {
+        if (_obj == null || _obj instanceof ::WeakTableRef) return _obj;
+        if (typeof _obj != "table") throw "Can't make WeakTableRef of " + typeof _obj;
+        return ::WeakTableRef(_obj);
+    }
 
     function isKindOf(_obj, _className) {
         if (_obj == null || _className == null) return false;

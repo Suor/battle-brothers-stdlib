@@ -116,6 +116,14 @@ assertEq(Util.round(375, -2), 400);
 
 // TODO: getMember()? isKindOf()?
 
+local t = {}, ref = ::WeakTableRef(t);
+assertEq(Util.weakTableRef(null), null);
+assertEq(Util.weakTableRef(ref) == ref, true);
+assertEq(Util.weakTableRef(t).get() == t, true);
+local err = null;
+try { Util.weakTableRef([]) } catch (e) { err = e }
+assertEq(err, "Can't make WeakTableRef of array");
+
 
 // Done
 print("Core OK\n")
